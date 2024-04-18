@@ -1,21 +1,15 @@
 import { _decorator, Component, Node, RigidBody2D, tween, v3, Vec2, Vec3 } from 'cc';
-import { Joystick } from '../Joystick';
 import { Constants } from '../util/Constant';
 const { ccclass, property } = _decorator;
 
 @ccclass('Ball')
 export class Ball extends Component {
-    // @property(Joystick)
-    // joystick: Joystick = null;
-
-    // private _vx: number = 0;
-    // private _vy: number = 0;
-
-    // delayTime: number = 100;
-
-    // playTime: number = 5;
-
+    /** 材质颜色 */
     public texture: string = null;
+    /** 是否出现在视野中 */
+    public isInView: boolean = false;
+    /** 是否标记为同材质 */
+    public isSameMark: boolean = false;
 
     start () {
         // setTimeout(()=>{
@@ -58,18 +52,7 @@ export class Ball extends Component {
 
 
     update(deltaTime: number) {
-        // if (this.joystick.direction.x === 0 && this.joystick.direction.y === 0) return
-        // // 计算小球的速度
-        // const speed = 100;
-        // this._vx = this.joystick.direction.x * speed;
-        // this._vy = this.joystick.direction.y * speed;
-
-        // // 更新小球的位置
-        // const pos = this.node.getPosition();
-        // pos.x += this._vx * deltaTime;
-        // pos.y += this._vy * deltaTime;
-        // this.node.setPosition(pos);
-        // console.log('pos', pos);
+ 
     }
 
     setBallProp(texture: string, visible: boolean = false) {
@@ -82,11 +65,19 @@ export class Ball extends Component {
         this.node.active = visible
     }
 
+    setInView(inView: boolean) {
+        this.isInView = inView
+    }
+
+    setIsSameMark(mark: boolean) {
+        this.isSameMark = mark
+    }
+
     setSleep(sleep: boolean) {
         if (sleep) {
-            this.node.children[0].getComponent(RigidBody2D).sleep()
+            this.node.getComponent(RigidBody2D).sleep()
         } else {
-            this.node.children[0].getComponent(RigidBody2D).wakeUp()
+            this.node.getComponent(RigidBody2D).wakeUp()
         }
     }
 
@@ -98,7 +89,8 @@ export class Ball extends Component {
         return this.node.position;
     }
 
-    moveTrace(posList: Vec2[], type: string = Constants.POSITION_TYPE.worldPosition) {
+    /** 发射球移动轨迹 */
+    playShootAction(posList: Vec2[], type: string = Constants.POSITION_TYPE.worldPosition) {
         if (posList.length === 0) return
         const taskList = []
         for(let i = 0; i < posList.length; i++) {
@@ -106,6 +98,21 @@ export class Ball extends Component {
             taskList.push(t);
         }
         tween(this.node).sequence(...taskList).start();
+    }
+
+    /** 球爆炸 */
+    playBallExplosion() {
+        // 球消失
+        tween(this.node).to(0.5, {scale: v3(0, 0, 0)}, { easing: "smooth" }).call(()=>{
+            this.node.destroy()
+        }).start();
+    }
+
+    /** 球下坠 */
+    playBallFall() {
+        tween(this.node).to(0.5, { 
+            worldPosition: v3(this.node.position.x, -200, 0) }, { easing: "smooth" }
+        ).start(); 
     }
 }
 

@@ -56,7 +56,7 @@ export class Joystick extends Component {
     this.stick.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
     this.stick.on(Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
 
-    director.on(Constants.EVENT_TYPE.CREATE_SHOOT_BALL, this.listenCreateShootBall, this)
+    director.on(Constants.EVENT_TYPE.NEXT_SHOOT_BALL, this.listenCreateShootBall, this)
   }
 
   update(deltaTime: number) {
@@ -69,7 +69,7 @@ export class Joystick extends Component {
     this.stick.off(Node.EventType.TOUCH_END, this.onTouchEnd, this);
     this.stick.off(Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
 
-    director.off(Constants.EVENT_TYPE.CREATE_SHOOT_BALL, this.listenCreateShootBall, this)
+    director.off(Constants.EVENT_TYPE.NEXT_SHOOT_BALL, this.listenCreateShootBall, this)
   }
 
   onTouchStart(event: EventTouch) {
@@ -78,10 +78,6 @@ export class Joystick extends Component {
     this._cur_len = 0;
     this.ballPosList = [];
     this.showShootBall();
-
-    // const pos = this.stick.position;
-    // const screenSize = view.getVisibleSize();
-    // console.log("pos", pos, screenSize);
   }
 
   onTouchMove(event: EventTouch) {
@@ -112,12 +108,10 @@ export class Joystick extends Component {
     const vec = this.direction.clone();
 
     if (signAngle > Constants.RAY_ANGLE) {
-      // console.log('左夹角', signAngle, startPos, this.direction)
       //  {x: 0.8484285425260061, y: 0.5293099358855802}
       vec.x = 0.848
       vec.y = 0.529
     } else if (signAngle < -Constants.RAY_ANGLE) {
-      // console.log('右夹角', signAngle, startPos, this.direction)
       // {x: -0.8488873267103428, y: 0.5285738420983086}
       vec.x = -0.848
       vec.y = 0.529
@@ -130,6 +124,7 @@ export class Joystick extends Component {
 
   onTouchEnd(event: EventTouch) {
     // 处理触摸结束事件
+    Constants.gameManager.setShootBallState();
     this.shootBall();
     this.direction.x = this.direction.y = 0;
     this.stick.setPosition(0, 0);
@@ -138,32 +133,25 @@ export class Joystick extends Component {
   }
 
   listenCreateShootBall(data: any) {
-    console.log('data', data)
     this.showShootBall();
   }
 
   showShootBall() {
     // 显示球
     const ball = this.ballManager.getShootBall();
+    console.log('joystick pos', ball)
     if (ball) {
       const pos = this.node.position;
       ball.setBallPosition(v2(pos.x, pos.y));
       ball.setVisible(true);
-      // ball.setBallPosition(v2(0, -269.5));
-      console.log('joystick pos', pos, ball.getBallPosition(), ball)
     }
   }
 
   // 射击小球
   shootBall() {
     if (this.ballPosList.length <= 0) return;
-    const ball = this.ballManager.getShootBall();
-    // for(let i = 0; i < this.ballPosList.length; i++) {
-    //   const pos = this.ballPosList[i];
-      
-    // }
-    console.log('this.ballPosList', this.ballPosList)
-    ball.moveTrace(this.ballPosList);
+    const ball = this.ballManager.popShootBall();
+    ball.playShootAction(this.ballPosList);
   }
 
   clearLine() {
@@ -177,17 +165,8 @@ export class Joystick extends Component {
     const startPos = initPos.clone();
     const newStartPos = startPos.clone();
     const vecDir = vec.clone();
-    // console.log('leftLen', leftLen)
     // 计算线的终点位置
     const endPos = newStartPos.add(vecDir.multiply(v2(leftLen, leftLen)));
-
-    // if (PhysicsSystem.instance.raycast(outRay)) {
-    //     console.log('PhysicsSystem.instance.raycastResults', PhysicsSystem.instance.raycastResults)
-    // } else {
-    //     console.log('未检测射线222')
-    // }
-
-    // console.log('startPos', startPos, 'endPos', endPos)
 
     // 射线测试
     const results = PhysicsSystem2D.instance.raycast(
@@ -196,17 +175,20 @@ export class Joystick extends Component {
       ERaycast2DType.Closest
     );
 
-    console.log('results', results)
-
     if (results.length > 0) {
       // 射线碰撞到了
       const result = results[0];
-      // console.log("射线碰撞到了", result);
+      // console.log("射线碰撞到了", results, result);
+      const collider = result.collider;
       // 碰撞点
       const point = result.point;
       const hitPoint = point.clone();
       // 画射线
       this.drawTraceByRayCast2D(startPos, point);
+      // console.log('collider.node.name', collider.node.name)
+      if (collider.node.name === 'ball' || collider.node.name === 'shootBall') {
+        return;
+      }
       // 当前长度
       const len = hitPoint.subtract(startPos).length();
       // 更新当前长度
@@ -217,7 +199,6 @@ export class Joystick extends Component {
       const inVec = vecDir.clone();
       // 反向向量
       const backVec = inVec.subtract(normal.multiply(v2(2 * inVec.dot(normal), 2 * inVec.dot(normal))));
-      // console.log('point', point, hitPoint, backVec)
       // 计算下一段反弹
       this.drawRayCast2D(point, backVec);
     } else {
