@@ -119,7 +119,7 @@ export class BallManager extends Component {
      * @returns 
      */
     checkSameTextureBall(row: number, col: number, texture: string) {
-        if (!this.bubbleBallList[row] || !this.bubbleBallList[row][col]) return
+        if (!this.checkBallNotNull(row, col)) return
         const ball = this.bubbleBallList[row][col]
         // 是否同材质
         if (ball.texture !== texture) return
@@ -285,6 +285,7 @@ export class BallManager extends Component {
         // const { row, col } = Utils.convertToRowCol(v2(pos.x, pos.y))
         const newPos = Utils.convertToPos(row, col)
         ball.setBallPosition(newPos)
+        let isBubble = false
         const len = this.bubbleBallList.length
         if (!this.bubbleBallList[row] && row <= len) {
             this.bubbleBallList[row] = []
@@ -293,22 +294,50 @@ export class BallManager extends Component {
             }
         }
         if (this.bubbleBallList[row] && !this.bubbleBallList[row][col]) {
-            console.log('成为气泡球', this._endPos, row, col)
-            this.bubbleBallList[row][col] = ball
-        } else {
-            console.log('气泡球位置已被占用或非法', this.bubbleBallList, row, col)
-            // ball.node.destroy()
+            let isLinked = false
+            if (row !== 0) {
+                // 处理悬空的球
+                const leftTop = row % 2 === 1 ? col : col - 1
+                // 左上
+                if (this.checkBallNotNull(row - 1, leftTop)) {
+                    isLinked = true
+                }            
+                // 右上
+                if (this.checkBallNotNull(row - 1, leftTop + 1)) {
+                    isLinked = true
+                }
+                // 左
+                if (this.checkBallNotNull(row, col - 1)) {
+                    isLinked = true
+                }
+                // 右
+                if (this.checkBallNotNull(row, col + 1)) {
+                    isLinked = true
+                }
+                // 左下
+                if (this.checkBallNotNull(row + 1, leftTop)) {
+                    isLinked = true
+                }
+                // 右下
+                if (this.checkBallNotNull(row + 1, leftTop + 1)) {
+                    isLinked = true
+                }
+            }
+            if (isLinked || row === 0) {
+                console.log('成为气泡球', this._endPos, row, col)
+                this.bubbleBallList[row][col] = ball
+                isBubble = true
+            }
+        }
+        if (!isBubble) {
             ball.playBallExplosion()
         }
-
-        // 处理悬空的球
-        this.handleHangBubbleBallList()
-
+        
         this.nextShootBall()
     }
 
     checkHangBall(row: number, col: number) {
-        if (!this.bubbleBallList[row] || !this.bubbleBallList[row][col]) return
+        if (!this.checkBallNotNull(row, col)) return
         const ball = this.bubbleBallList[row][col]
         // 是否标记过
         if (ball.isMark) return
@@ -330,6 +359,11 @@ export class BallManager extends Component {
         this.checkHangBall(row + 1, leftTop + 1)
     }
 
+    checkBallNotNull(row: number, col: number) {
+        if (!this.bubbleBallList[row] || !this.bubbleBallList[row][col]) return false
+        return true
+    }
+
     /**
      * 检测空悬挂的球
      */
@@ -343,7 +377,7 @@ export class BallManager extends Component {
             if (!ball) continue
             this.checkHangBall(0, j)
         }
-        
+
         // 没有被标记的即为悬空的球
         for(let i = 0; i < this.bubbleBallList.length; i++) {
             if (!this.bubbleBallList[i]) {
@@ -354,16 +388,17 @@ export class BallManager extends Component {
                 const ball = this.bubbleBallList[i][j]
                 if (!ball) continue
                 if (!ball.isMark) {
-                    hangBubbleList.push(ball)
+                    hangBubbleList.push({ ball, row: i, col: j })
                 } else {
                     ball.setIsMark(false)
                 }
             }
         }
         // 使球下落
-        hangBubbleList.forEach((ball) => {
+        hangBubbleList.forEach(({ ball, row, col }) => {
             if (ball) {
                 ball.playBallFall()
+                this.bubbleBallList[row][col] = null
             }
         })
     }

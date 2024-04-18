@@ -122,6 +122,7 @@ export class Ball extends Component {
 
     /** 球下坠 */
     playBallFall() {
+        if (!this.node) return
         tween(this.node).to(0.4, { 
             position: v3(this.node.position.x, -200, 0) }, { easing: "smooth" }
         ).to(0.3, {scale: v3(0, 0, 0)}, { easing: "smooth" }).call(() => {
