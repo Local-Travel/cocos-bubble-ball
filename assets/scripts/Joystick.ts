@@ -18,6 +18,7 @@ import {
   view,
 } from "cc";
 import { BallManager } from "./ball/BallManager";
+import { Constants } from "./util/Constant";
 const { ccclass, property } = _decorator;
 
 @ccclass("Joystick")
@@ -40,15 +41,11 @@ export class Joystick extends Component {
   private _uiTransform: UITransform = null;
   private _g: Graphics = null;
 
-  // ball
-  private _ball: Node = null;
-
   // 2dRay
-  private _LINE_LEN_MAX: number = 200;
   private _cur_len: number = 0;
-  private _ANGLE: number = 1;
 
   onLoad() {
+    PhysicsSystem2D.instance.enable = true;
     this._uiTransform = this.node.getComponent(UITransform);
     this._g = this.getComponent(Graphics);
   }
@@ -59,14 +56,20 @@ export class Joystick extends Component {
     this.stick.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
     this.stick.on(Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
 
-    this.ballManager.createBallList(2);
+    director.on(Constants.EVENT_TYPE.CREATE_SHOOT_BALL, this.listenCreateShootBall, this)
   }
 
   update(deltaTime: number) {
 
-    if (!this._ball) {
-      this.showBall();
-    }
+  }
+
+  onDestroy() {
+    this.stick.off(Node.EventType.TOUCH_START, this.onTouchStart, this);
+    this.stick.off(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
+    this.stick.off(Node.EventType.TOUCH_END, this.onTouchEnd, this);
+    this.stick.off(Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
+
+    director.off(Constants.EVENT_TYPE.CREATE_SHOOT_BALL, this.listenCreateShootBall, this)
   }
 
   onTouchStart(event: EventTouch) {
@@ -74,7 +77,7 @@ export class Joystick extends Component {
     this.direction.x = this.direction.y = 0;
     this._cur_len = 0;
     this.ballPosList = [];
-    this.showBall();
+    this.showShootBall();
 
     // const pos = this.stick.position;
     // const screenSize = view.getVisibleSize();
@@ -108,12 +111,12 @@ export class Joystick extends Component {
     const startPos = v2(pos.x, pos.y)
     const vec = this.direction.clone();
 
-    if (signAngle > this._ANGLE) {
+    if (signAngle > Constants.RAY_ANGLE) {
       // console.log('左夹角', signAngle, startPos, this.direction)
       //  {x: 0.8484285425260061, y: 0.5293099358855802}
       vec.x = 0.848
       vec.y = 0.529
-    } else if (signAngle < -this._ANGLE) {
+    } else if (signAngle < -Constants.RAY_ANGLE) {
       // console.log('右夹角', signAngle, startPos, this.direction)
       // {x: -0.8488873267103428, y: 0.5285738420983086}
       vec.x = -0.848
@@ -134,14 +137,18 @@ export class Joystick extends Component {
     this._cur_len = 0;
   }
 
-  showBall() {
+  listenCreateShootBall(data: any) {
+    console.log('data', data)
+    this.showShootBall();
+  }
+
+  showShootBall() {
     // 显示球
-    const ball = this.ballManager.getBall();
+    const ball = this.ballManager.getShootBall();
     if (ball) {
       const pos = this.node.position;
       ball.setBallPosition(v2(pos.x, pos.y));
       ball.setVisible(true);
-      this._ball = ball.node;
       // ball.setBallPosition(v2(0, -269.5));
       console.log('joystick pos', pos, ball.getBallPosition(), ball)
     }
@@ -150,7 +157,7 @@ export class Joystick extends Component {
   // 射击小球
   shootBall() {
     if (this.ballPosList.length <= 0) return;
-    const ball = this.ballManager.getBall();
+    const ball = this.ballManager.getShootBall();
     // for(let i = 0; i < this.ballPosList.length; i++) {
     //   const pos = this.ballPosList[i];
       
@@ -159,38 +166,13 @@ export class Joystick extends Component {
     ball.moveTrace(this.ballPosList);
   }
 
-  drawLine() {
-    // // direction
-    // const speed = 10;
-    // const vx = this.direction.x * speed;
-    // const vy = this.direction.y * speed;
-    // const pos = this.stick.position;
-    // const screenSize = view.getVisibleSize()
-    // // line
-    // const startPos = new Vec2(pos.x, pos.y);
-    // this._g.lineWidth = 1;
-    // const maxX = screenSize.width / 2;
-    // let posX = pos.x;
-    // for(let i = 0; Math.abs(posX) < maxX && i < 1000; i++) {
-    //     const x = startPos.x + vx * i;
-    //     const y = startPos.y + vy * i;
-    //     posX += vx
-    //     console.log(x, y, posX)
-    //     this._g.moveTo(x, y);
-    //     this._g.lineTo(x + vx, y + vy);
-    //     this._g.stroke();
-    // }
-    // this._g.close();
-    // this._g.fill();
-  }
-
   clearLine() {
     this._g.clear();
   }
 
   drawRayCast2D(initPos: Vec2, vec: Vec2) {
     // 剩余长度
-    const leftLen = this._LINE_LEN_MAX - this._cur_len;
+    const leftLen = Constants.RAY_LENGTH - this._cur_len;
     if (leftLen <= 0) return;
     const startPos = initPos.clone();
     const newStartPos = startPos.clone();
@@ -214,7 +196,7 @@ export class Joystick extends Component {
       ERaycast2DType.Closest
     );
 
-    // console.log('results', results)
+    console.log('results', results)
 
     if (results.length > 0) {
       // 射线碰撞到了

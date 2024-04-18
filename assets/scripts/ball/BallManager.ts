@@ -1,14 +1,19 @@
-import { _decorator, Component, instantiate, Material, math, MeshRenderer, Node, Prefab, resources, Vec3 } from 'cc';
+import { _decorator, Component, director, instantiate, Material, math, MeshRenderer, Node, Prefab, resources, v2, v3, Vec2, Vec3 } from 'cc';
 import { Constants } from '../util/Constant';
 import { Ball } from './Ball';
+import { Utils } from '../util/Utils';
+import { getLevelData } from '../data/levelData';
 const { ccclass, property } = _decorator;
 
 @ccclass('BallManager')
 export class BallManager extends Component {
     @property(Prefab)
-    prefab: Prefab = null
+    ballPrefab: Prefab = null
+    @property(Prefab)
+    shootBallPrefab: Prefab = null
 
-    ballList: Ball[] = []
+    shootBallList: Ball[] = []
+    bubbleBallList: Ball|null[][] = []
 
     private _skinStyle: string = ''
     private _ballSkin = null
@@ -19,11 +24,14 @@ export class BallManager extends Component {
     }
 
     start() {
-        // this.createBallList(2);
+        this.createShootBallList(2);
+        this.createBubbleBallList()
+        director.emit(Constants.EVENT_TYPE.CREATE_SHOOT_BALL, this.shootBallList)
     }
 
     onDestroy() {
-        this.clearBallList()
+        this.clearShootBallList()
+        this.clearBubbleBallList()
     }
 
     setBallMaterial(ball: Node, texture: string) {
@@ -31,14 +39,19 @@ export class BallManager extends Component {
         const ballNode = ball ? ball.children[0] : null
         if (ballNode) {
             resources.load(ballTextPath, Material, (err, material) => {
-                console.log('load material', err, material)
+                // console.log('load material', err, material)
                 ballNode.getComponent(MeshRenderer).material = material;
             });
         }
     }
  
-    createBall(pos: Vec3, ballCode: string, visible: boolean = false) {
-        const ball = instantiate(this.prefab)
+    createBall(ballType: string, pos: Vec3, ballCode: string, visible: boolean = false) {
+        let ball = null
+        if (ballType === Constants.BALL_TYPE.SHOOT_BALL) {
+            ball = instantiate(this.shootBallPrefab)
+        } else {
+            ball = instantiate(this.ballPrefab)
+        }
         // const ball = PoolManager.instance().getNode(this.prefab, this.node)
         const texture = this._ballSkin.skin + ballCode
         this.setBallMaterial(ball, texture)
@@ -47,34 +60,67 @@ export class BallManager extends Component {
         const ballComp = ball.getComponent(Ball)
         ballComp.setBallProp(texture, visible)
     
-        this.ballList.push(ballComp)
+        this.shootBallList.push(ballComp)
         
         return ballComp
     }
 
-    createBallList(count: number, visible: boolean = false) {
+    createShootBallList(count: number, visible: boolean = false) {
         for(let i = 1; i <= count; i++) {
-            const code = math.randomRangeInt(1, 3)
-            this.createBall(new Vec3(0, 0, 0), code.toString(), visible)
+            const code = math.randomRangeInt(1, 4)
+            this.createBall(Constants.BALL_TYPE.SHOOT_BALL, v3(0, 0, 0), code.toString(), visible)
         }
     }
 
-    // 清空球列表
-    clearBallList() {
-        this.ballList.forEach(ball => {
-            ball.node.destroy()
-        })
-        this.ballList = []
+    createBubbleBallList() {
+        // const colmaxCol = Utils.getMaxCol();
+        const level = 1;
+        const { col, list } = getLevelData(level);
+        const ballList = []
+        const row = Math.round(list.length / col)
+        for(let i = 0; i < row; i++) {
+            ballList[i] = []
+            for(let j = 0; j < col; j++) {
+                const code = list[i * col + j]
+                if (code === 0) {
+                    continue
+                }
+                const pos = Utils.convertToPos(i, j)
+                const ball = this.createBall(Constants.BALL_TYPE.BUBBLE_BALL, v3(pos.x, pos.y, 0), code.toString(), true)
+                ballList[i][j] = ball
+            }
+        }
+        this.bubbleBallList = ballList
     }
 
-    // 获取顶部球，并清除
-    popBall() {
-        return this.ballList.pop()
+    // 清空球列表
+    clearShootBallList() {
+        this.shootBallList.forEach(ball => {
+            if (ball && ball.node) {
+                ball.node.destroy()
+            }
+        })
+        this.shootBallList = []
+    }
+
+    clearBubbleBallList() {
+        if (Array.isArray(this.bubbleBallList)) {
+            this.bubbleBallList.forEach(row => {
+                if (row) {
+                    row.forEach((ball: any) => {
+                        if (ball && ball.node) {
+                            ball.node.destroy()
+                        }
+                    })
+                }
+            })
+        }
+        this.bubbleBallList = []
     }
 
     // 获取顶部球
-    getBall() {
-        return this.ballList[this.ballList.length - 1]
+    getShootBall() {
+        return this.shootBallList[this.shootBallList.length - 1]
     }
 }
 

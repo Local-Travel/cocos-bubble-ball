@@ -1,7 +1,7 @@
 [
   {
     "__type__": "cc.Prefab",
-    "_name": "ball",
+    "_name": "shootBall",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_native": "",
@@ -13,7 +13,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "ball",
+    "_name": "shootBall",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": null,
@@ -22,7 +22,7 @@
         "__id__": 2
       }
     ],
-    "_active": true,
+    "_active": false,
     "_components": [
       {
         "__id__": 11
@@ -40,7 +40,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": -269.501,
+      "y": -269.502,
       "z": 0
     },
     "_lrot": {
@@ -224,7 +224,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "54MvrATMBH35UsgRHYW1c6"
+    "fileId": "b8qnblU6lM+qNHx14nFqIK"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -289,7 +289,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "daxrU5tVZEY5BvvVZUhaAD"
+    "fileId": "a3XTd7y4JJM7Z+l97+rcGW"
   },
   {
     "__type__": "cc.BoxCollider2D",
@@ -323,7 +323,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "9ddbc1HbRAB6wB7hPhf2e2"
+    "fileId": "f8APY+SBNJM6imaARmdFMR"
   },
   {
     "__type__": "cc.PrefabInfo",
