@@ -8,8 +8,8 @@ export class Ball extends Component {
     public texture: string = null;
     /** 是否出现在视野中 */
     public isInView: boolean = false;
-    /** 是否标记为同材质 */
-    public isSameMark: boolean = false;
+    /** 是否标记 */
+    public isMark: boolean = false;
 
     start () {
         // setTimeout(()=>{
@@ -74,8 +74,8 @@ export class Ball extends Component {
         this.isInView = inView
     }
 
-    setIsSameMark(mark: boolean) {
-        this.isSameMark = mark
+    setIsMark(mark: boolean) {
+        this.isMark = mark
     }
 
     setSleep(sleep: boolean) {
@@ -122,9 +122,11 @@ export class Ball extends Component {
 
     /** 球下坠 */
     playBallFall() {
-        tween(this.node).to(0.5, { 
-            worldPosition: v3(this.node.position.x, -200, 0) }, { easing: "smooth" }
-        ).start(); 
+        tween(this.node).to(0.4, { 
+            position: v3(this.node.position.x, -200, 0) }, { easing: "smooth" }
+        ).to(0.3, {scale: v3(0, 0, 0)}, { easing: "smooth" }).call(() => {
+            this.node.destroy()
+        }).start(); 
     }
 }
 

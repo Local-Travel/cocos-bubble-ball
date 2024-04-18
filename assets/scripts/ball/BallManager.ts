@@ -124,9 +124,9 @@ export class BallManager extends Component {
         // 是否同材质
         if (ball.texture !== texture) return
         // 是否标记过
-        if (ball.isSameMark) return
+        if (ball.isMark) return
         // 符合条件
-        ball.setIsSameMark(true)
+        ball.setIsMark(true)
 
         const leftTop = row % 2 === 1 ? col : col - 1
         // 左上
@@ -185,8 +185,8 @@ export class BallManager extends Component {
                 for(let j = 0; j < this.bubbleBallList[i].length; j++) {
                     const ball = this.bubbleBallList[i][j]
                     if (!ball) continue
-                    if (ball.isSameMark) {
-                        ball.setIsSameMark(false)
+                    if (ball.isMark) {
+                        ball.setIsMark(false)
                         sameBallList.push({ ball, row: i, col: j })
                     }
                 }
@@ -252,8 +252,8 @@ export class BallManager extends Component {
             for(let j = 0; j < this.bubbleBallList[i].length; j++) {
                 const ball = this.bubbleBallList[i][j]
                 if (!ball) continue
-                if (ball.isSameMark) {
-                    ball.setIsSameMark(false)
+                if (ball.isMark) {
+                    ball.setIsMark(false)
                     sameBallList.push({ ball, row: i, col: j })
                 }
             }
@@ -269,6 +269,9 @@ export class BallManager extends Component {
                 }
             })
             this.shootingBall.playBallExplosion()
+            // 处理悬空的球
+            this.handleHangBubbleBallList()
+
             this.nextShootBall()
         } else {
             this.becomeBubbleBall(this.shootingBall, row, col)
@@ -298,11 +301,71 @@ export class BallManager extends Component {
             ball.playBallExplosion()
         }
 
+        // 处理悬空的球
+        this.handleHangBubbleBallList()
+
         this.nextShootBall()
     }
 
-    checkHangBubbleBallList() {
+    checkHangBall(row: number, col: number) {
+        if (!this.bubbleBallList[row] || !this.bubbleBallList[row][col]) return
+        const ball = this.bubbleBallList[row][col]
+        // 是否标记过
+        if (ball.isMark) return
+        // 符合条件
+        ball.setIsMark(true)
+
+        const leftTop = row % 2 === 1 ? col : col - 1
+        // 左上
+        this.checkHangBall(row - 1, leftTop)
+        // 右上
+        this.checkHangBall(row - 1, leftTop + 1)
+        // 左
+        this.checkHangBall(row, col - 1)
+        // 右
+        this.checkHangBall(row, col + 1)
+        // 左下
+        this.checkHangBall(row + 1, leftTop)
+        // 右下
+        this.checkHangBall(row + 1, leftTop + 1)
+    }
+
+    /**
+     * 检测空悬挂的球
+     */
+    handleHangBubbleBallList() {
+        if (this.bubbleBallList.length === 0) return
+        const hangBubbleList = []
+        const colList = this.bubbleBallList[0]
+        // 标记与第一行有接触的球
+        for(let j = 0; j < colList.length; j++) {
+            const ball = this.bubbleBallList[0][j]
+            if (!ball) continue
+            this.checkHangBall(0, j)
+        }
         
+        // 没有被标记的即为悬空的球
+        for(let i = 0; i < this.bubbleBallList.length; i++) {
+            if (!this.bubbleBallList[i]) {
+                console.warn('this.bubbleBallList[i] is null', i, this.bubbleBallList[i])
+                continue
+            }
+            for(let j = 0; j < this.bubbleBallList[i].length; j++) {
+                const ball = this.bubbleBallList[i][j]
+                if (!ball) continue
+                if (!ball.isMark) {
+                    hangBubbleList.push(ball)
+                } else {
+                    ball.setIsMark(false)
+                }
+            }
+        }
+        // 使球下落
+        hangBubbleList.forEach((ball) => {
+            if (ball) {
+                ball.playBallFall()
+            }
+        })
     }
 
     nextShootBall() {
