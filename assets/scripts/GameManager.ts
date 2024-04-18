@@ -1,4 +1,4 @@
-import { _decorator, Collider2D, Component, Contact2DType, Node, PhysicsSystem2D } from 'cc';
+import { _decorator, Collider2D, Component, Contact2DType, Node, PhysicsSystem2D, Vec2 } from 'cc';
 import { Constants } from './util/Constant';
 import { BallManager } from './ball/BallManager';
 import { Ball } from './ball/Ball';
@@ -9,7 +9,7 @@ export class GameManager extends Component {
     @property(BallManager)
     ballManager: BallManager = null;
 
-    private _shootBallState: string = Constants.BALL_SHOOT_STATE.READY;
+    public ballState: string = null;
 
     protected __preload(): void {
         Constants.gameManager = this;
@@ -38,21 +38,26 @@ export class GameManager extends Component {
         this.setShootBallState();
     }
 
-    setShootBallState() {
-        this._shootBallState = Constants.BALL_SHOOT_STATE.READY;
-        console.log('setShootBallState')
+    setShootBallState(state: string = Constants.BALL_SHOOT_STATE.READY) {
+        this.ballState = state;
+    }
+
+    shootBallAction(posList: Vec2[]) {
+        if (this.ballState === Constants.BALL_SHOOT_STATE.READY) {
+            this.ballManager.shootBallAction(posList);
+        }
     }
 
     onBeginContact(selfCollider: Collider2D, otherCollider: Collider2D) {
         // 只在两个碰撞体开始接触时被调用一次
         // console.log('onBeginContact', selfCollider, otherCollider);
         // 撞击球检测
-        if (this._shootBallState === Constants.BALL_SHOOT_STATE.HIT_BALL || !otherCollider.node || !selfCollider.node) {
+        if (this.ballState === Constants.BALL_SHOOT_STATE.HIT_BALL || !otherCollider.node || !selfCollider.node) {
             return;
         }
         if (otherCollider.node.name === 'shootBall' && selfCollider.node.name === 'ball') {
             // 球与球碰撞
-            this._shootBallState = Constants.BALL_SHOOT_STATE.HIT_BALL;
+            this.ballState = Constants.BALL_SHOOT_STATE.HIT_BALL;
             const hitBall = selfCollider.node.getComponent(Ball);
             const shootBall = otherCollider.node.getComponent(Ball);
             this.ballManager.handleHitBall(hitBall, shootBall);

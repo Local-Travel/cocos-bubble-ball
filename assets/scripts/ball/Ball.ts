@@ -90,14 +90,16 @@ export class Ball extends Component {
     }
 
     /** 发射球移动轨迹 */
-    playShootAction(posList: Vec2[], type: string = Constants.POSITION_TYPE.worldPosition) {
-        if (posList.length === 0) return
+    playShootAction(posList: Vec2[], cb: Function) {
+        if (posList.length === 0) return cb()
         const taskList = []
         for(let i = 0; i < posList.length; i++) {
-            const t = tween(this.node).to(0.5, {[type]: v3(posList[i].x, posList[i].y, 0)});
+            const t = tween(this.node).to(0.3, {worldPosition: v3(posList[i].x, posList[i].y, 0)});
             taskList.push(t);
         }
-        tween(this.node).sequence(...taskList).start();
+        tween(this.node).sequence(...taskList).call(() => {
+            cb()
+        }).start();
     }
 
     /** 球爆炸 */

@@ -67,7 +67,7 @@ export class Constants {
   static BALL_SHOOT_STATE = BALL_SHOOT_STATE // 球射击状态
 
   // 射线
-  static RAY_LENGTH = 500; // 射线长度
+  static RAY_LENGTH = 800; // 射线长度
   static RAY_ANGLE = 1; // 射线角度(0-3.14)
 
   // 事件

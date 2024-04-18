@@ -56,7 +56,7 @@ export class Joystick extends Component {
     this.stick.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
     this.stick.on(Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
 
-    director.on(Constants.EVENT_TYPE.NEXT_SHOOT_BALL, this.listenCreateShootBall, this)
+    // director.on(Constants.EVENT_TYPE.NEXT_SHOOT_BALL, this.listenCreateShootBall, this)
   }
 
   update(deltaTime: number) {
@@ -69,7 +69,7 @@ export class Joystick extends Component {
     this.stick.off(Node.EventType.TOUCH_END, this.onTouchEnd, this);
     this.stick.off(Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
 
-    director.off(Constants.EVENT_TYPE.NEXT_SHOOT_BALL, this.listenCreateShootBall, this)
+    // director.off(Constants.EVENT_TYPE.NEXT_SHOOT_BALL, this.listenCreateShootBall, this)
   }
 
   onTouchStart(event: EventTouch) {
@@ -77,10 +77,12 @@ export class Joystick extends Component {
     this.direction.x = this.direction.y = 0;
     this._cur_len = 0;
     this.ballPosList = [];
-    this.showShootBall();
+    // this.showShootBall();
   }
 
   onTouchMove(event: EventTouch) {
+    if (Constants.gameManager.ballState !== Constants.BALL_SHOOT_STATE.READY) return
+
     this.clearLine();
     this._cur_len = 0;
     this.ballPosList = [];
@@ -124,8 +126,7 @@ export class Joystick extends Component {
 
   onTouchEnd(event: EventTouch) {
     // 处理触摸结束事件
-    Constants.gameManager.setShootBallState();
-    this.shootBall();
+    Constants.gameManager.shootBallAction(this.ballPosList);
     this.direction.x = this.direction.y = 0;
     this.stick.setPosition(0, 0);
     this.clearLine();
@@ -133,26 +134,25 @@ export class Joystick extends Component {
   }
 
   listenCreateShootBall(data: any) {
-    this.showShootBall();
+    // this.showShootBall();
   }
 
-  showShootBall() {
-    // 显示球
-    const ball = this.ballManager.getShootBall();
-    console.log('joystick pos', ball)
-    if (ball) {
-      const pos = this.node.position;
-      ball.setBallPosition(v2(pos.x, pos.y));
-      ball.setVisible(true);
-    }
-  }
+  // showShootBall() {
+  //   // 显示球
+  //   const ball = this.ballManager.createShootBallOne();
+  //   console.log('joystick pos', ball)
+  //   if (ball) {
+  //     const pos = this.node.position;
+  //     ball.setBallPosition(v2(pos.x, pos.y));
+  //     ball.setVisible(true);
+  //   }
+  // }
 
-  // 射击小球
-  shootBall() {
-    if (this.ballPosList.length <= 0) return;
-    const ball = this.ballManager.popShootBall();
-    ball.playShootAction(this.ballPosList);
-  }
+  // // 射击小球
+  // shootBall() {
+  //   const ball = this.ballManager.popShootBall();
+  //   ball.playShootAction(this.ballPosList);
+  // }
 
   clearLine() {
     this._g.clear();

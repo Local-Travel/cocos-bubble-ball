@@ -15,6 +15,9 @@ export class BallManager extends Component {
     shootBallList: Ball[] = []
     bubbleBallList: (Ball|null)[][] = []
 
+    shootBall: Ball = null
+    nextBall: Ball = null
+
     private _skinStyle: string = ''
     private _ballSkin = null
 
@@ -24,14 +27,19 @@ export class BallManager extends Component {
     }
 
     start() {
-        this.createShootBallList(6);
         this.createBubbleBallList()
+        this.initShootBall()
         director.emit(Constants.EVENT_TYPE.NEXT_SHOOT_BALL)
     }
 
     onDestroy() {
         this.clearShootBallList()
         this.clearBubbleBallList()
+    }
+
+    initShootBall() {
+        this.nextBall = this.createShootBallOne()
+        this.createShootBallNext()
     }
 
     setBallMaterial(ball: Node, texture: string) {
@@ -69,6 +77,21 @@ export class BallManager extends Component {
             const ballComp = this.createBall(Constants.BALL_TYPE.SHOOT_BALL, v3(0, 0, 0), code.toString(), visible)
             this.shootBallList.push(ballComp)
         }
+    }
+
+    createShootBallOne() {
+        const code = math.randomRangeInt(1, 3)
+        const shootBall = this.createBall(Constants.BALL_TYPE.SHOOT_BALL, v3(0, -280, 0), code.toString(), true)
+        return shootBall
+    }
+
+    /** 置换球，并生成新的射球 */
+    createShootBallNext() {
+        this.shootBall = this.nextBall
+        const pos = this.shootBall.getBallPosition()
+        this.shootBall.setBallPosition(v2(pos.x, pos.y + Constants.BALL_RADIUS * 2))
+        const ball = this.createShootBallOne()
+        this.nextBall = ball
     }
 
     createBubbleBallList() {
@@ -136,13 +159,14 @@ export class BallManager extends Component {
     /**
      * 消除同材质球
      */
-    handleHitBall(hitBall: Ball | null, shootBall: Ball) {
-        if (!hitBall && !shootBall) return
+    handleHitBall(hitBall: Ball | null, shootingBall: Ball) {
+        // const shootBall = this.popShootBall()
+        if (!hitBall && !shootingBall) return
         // 获取它的行列
         if (hitBall) {
             const pos = hitBall.getBallPosition()
             const { row, col } = Utils.convertToRowCol(v2(pos.x, pos.y))
-            const texture = shootBall.texture
+            const texture = shootingBall.texture
             // 标记同材质球
             this.checkSameTextureBall(row, col, texture)
             // 记录标记同材球
@@ -167,13 +191,13 @@ export class BallManager extends Component {
                         this.bubbleBallList[row][col] = null
                     }
                 })
-                shootBall.playBallExplosion()
+                shootingBall.playBallExplosion()
                 this.nextShootBall()
             } else {
-                this.becomeBubbleBall(shootBall)
+                this.becomeBubbleBall(shootingBall)
             }
         } else {
-            this.becomeBubbleBall(shootBall)
+            this.becomeBubbleBall(shootingBall)
         }
     }
 
@@ -202,12 +226,13 @@ export class BallManager extends Component {
     }
 
     nextShootBall() {
-        if (this.shootBallList.length === 0) {
-            console.log('没有射击球了')
-            return
-        }
+        // if (this.shootBallList.length === 0) {
+        //     console.log('没有射击球了')
+        //     return
+        // }
         // 下一次射击
-        director.emit(Constants.EVENT_TYPE.NEXT_SHOOT_BALL)
+        // director.emit(Constants.EVENT_TYPE.NEXT_SHOOT_BALL)
+        Constants.gameManager.setShootBallState()
     }
 
 
@@ -237,6 +262,11 @@ export class BallManager extends Component {
         this.bubbleBallList = []
     }
 
+    shootBallAction(posList: Vec2[]) {
+        this.shootBall.playShootAction(posList, () => {})
+        this.createShootBallNext()
+    }
+
     /** 获取顶部球 */
     getShootBall() {
         return this.shootBallList[this.shootBallList.length - 1]
@@ -244,10 +274,11 @@ export class BallManager extends Component {
 
     /** 弹出顶部球 */
     popShootBall() {
-        const ball = this.getShootBall()
-        this.scheduleOnce(() => {
-            this.shootBallList.splice(-1, 1)
-        }, 1);
+        // const ball = this.getShootBall()
+        // this.scheduleOnce(() => {
+        //     this.shootBallList.splice(-1, 1)
+        // }, 1);
+        const ball = this.shootBallList.pop()
         return ball
     }
 }
