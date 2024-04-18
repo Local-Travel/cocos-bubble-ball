@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, RigidBody2D, tween, v3, Vec2, Vec3 } from 'cc';
+import { _decorator, Collider2D, Component, Contact2DType, Node, RigidBody2D, tween, v3, Vec2, Vec3 } from 'cc';
 import { Constants } from '../util/Constant';
 const { ccclass, property } = _decorator;
 
@@ -15,6 +15,11 @@ export class Ball extends Component {
         // setTimeout(()=>{
         //     this.playfruitsTween();
         // }, this.delayTime)
+        // let collider = this.getComponent(Collider2D);
+        // if (collider) {
+        //     collider.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this);
+        //     collider.on(Contact2DType.END_CONTACT, this.onEndContact, this);
+        // }
     }
 
     // playfruitsTween () {
@@ -90,15 +95,20 @@ export class Ball extends Component {
     }
 
     /** 发射球移动轨迹 */
-    playShootAction(posList: Vec2[], cb: Function) {
-        if (posList.length === 0) return cb()
+    playShootAction(posList: Vec2[], cb: Function, callback: Function) {
+        if (posList.length === 0) return
         const taskList = []
         for(let i = 0; i < posList.length; i++) {
             const t = tween(this.node).to(0.3, {worldPosition: v3(posList[i].x, posList[i].y, 0)});
+            if (i === 0) {
+                t.call(() => {
+                    cb()
+                })
+            }
             taskList.push(t);
         }
         tween(this.node).sequence(...taskList).call(() => {
-            cb()
+            callback()
         }).start();
     }
 

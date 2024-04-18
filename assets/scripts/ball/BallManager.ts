@@ -1,4 +1,4 @@
-import { _decorator, Component, director, instantiate, Material, math, MeshRenderer, Node, Prefab, resources, v2, v3, Vec2, Vec3 } from 'cc';
+import { _decorator, Component, director, instantiate, Material, math, MeshRenderer, Node, Prefab, resources, UITransform, v2, v3, Vec2, Vec3 } from 'cc';
 import { Constants } from '../util/Constant';
 import { Ball } from './Ball';
 import { Utils } from '../util/Utils';
@@ -12,14 +12,15 @@ export class BallManager extends Component {
     @property(Prefab)
     shootBallPrefab: Prefab = null
 
-    shootBallList: Ball[] = []
     bubbleBallList: (Ball|null)[][] = []
 
-    shootBall: Ball = null
+    curBall: Ball = null
     nextBall: Ball = null
+    shootingBall: Ball = null
 
     private _skinStyle: string = ''
     private _ballSkin = null
+    private _endPos = null
 
     onLoad() {
         this._skinStyle = 'Style1'
@@ -33,7 +34,8 @@ export class BallManager extends Component {
     }
 
     onDestroy() {
-        this.clearShootBallList()
+        this.curBall.node.destroy()
+        this.nextBall.node.destroy()
         this.clearBubbleBallList()
     }
 
@@ -71,25 +73,18 @@ export class BallManager extends Component {
         return ballComp
     }
 
-    createShootBallList(count: number, visible: boolean = false) {
-        for(let i = 1; i <= count; i++) {
-            const code = math.randomRangeInt(1, 3)
-            const ballComp = this.createBall(Constants.BALL_TYPE.SHOOT_BALL, v3(0, 0, 0), code.toString(), visible)
-            this.shootBallList.push(ballComp)
-        }
-    }
-
     createShootBallOne() {
         const code = math.randomRangeInt(1, 3)
-        const shootBall = this.createBall(Constants.BALL_TYPE.SHOOT_BALL, v3(0, -280, 0), code.toString(), true)
-        return shootBall
+        const ball = this.createBall(Constants.BALL_TYPE.SHOOT_BALL, v3(0, -280, 0), code.toString(), true)
+        return ball
     }
 
     /** 置换球，并生成新的射球 */
     createShootBallNext() {
-        this.shootBall = this.nextBall
-        const pos = this.shootBall.getBallPosition()
-        this.shootBall.setBallPosition(v2(pos.x, pos.y + Constants.BALL_RADIUS * 2))
+        this.curBall = this.nextBall
+        console.log('置换球', this.curBall.texture)
+        const pos = this.curBall.getBallPosition()
+        this.curBall.setBallPosition(v2(pos.x, pos.y + Constants.BALL_RADIUS * 2 + 10))
         const ball = this.createShootBallOne()
         this.nextBall = ball
     }
@@ -133,39 +128,54 @@ export class BallManager extends Component {
         // 符合条件
         ball.setIsSameMark(true)
 
-        // 标记同材质球
-        // 上
-        this.checkSameTextureBall(row - 1, col, texture)
-        // 下
-        this.checkSameTextureBall(row + 1, col, texture)
+        const leftTop = row % 2 === 1 ? col : col - 1
+        // 左上
+        this.checkSameTextureBall(row - 1, leftTop, texture)
+        // 右上
+        this.checkSameTextureBall(row - 1, leftTop + 1, texture)
         // 左
         this.checkSameTextureBall(row, col - 1, texture)
         // 右
         this.checkSameTextureBall(row, col + 1, texture)
+        // 左下
+        this.checkSameTextureBall(row + 1, leftTop, texture)
+        // 右下
+        this.checkSameTextureBall(row + 1, leftTop + 1, texture)
 
-        if (row % 2 === 0) {// 偶数行
-            // 右上
-            this.checkSameTextureBall(row - 1, col + 1, texture)
-            // 右下
-            this.checkSameTextureBall(row + 1, col + 1, texture)
-        } else {// 奇数行
-            // 左上
-            this.checkSameTextureBall(row - 1, col - 1, texture)
-            // 左下
-            this.checkSameTextureBall(row + 1, col - 1, texture)
-        }
+        // // 标记同材质球
+        // // 上
+        // this.checkSameTextureBall(row - 1, col, texture)
+        // // 下
+        // this.checkSameTextureBall(row + 1, col, texture)
+        // // 左
+        // this.checkSameTextureBall(row, col - 1, texture)
+        // // 右
+        // this.checkSameTextureBall(row, col + 1, texture)
+
+        // if (row % 2 === 0) {// 偶数行
+        //     // 右上
+        //     this.checkSameTextureBall(row - 1, col + 1, texture)
+        //     // 右下
+        //     this.checkSameTextureBall(row + 1, col + 1, texture)
+        // } else {// 奇数行
+        //     // 左上
+        //     this.checkSameTextureBall(row - 1, col - 1, texture)
+        //     // 左下
+        //     this.checkSameTextureBall(row + 1, col - 1, texture)
+        // }
     }
 
     /**
      * 消除同材质球
      */
     handleHitBall(hitBall: Ball | null, shootingBall: Ball) {
-        // const shootBall = this.popShootBall()
+        // const curBall = this.popShootBall()
         if (!hitBall && !shootingBall) return
         // 获取它的行列
         if (hitBall) {
             const pos = hitBall.getBallPosition()
             const { row, col } = Utils.convertToRowCol(v2(pos.x, pos.y))
+            console.log('hitBall', row, col)
             const texture = shootingBall.texture
             // 标记同材质球
             this.checkSameTextureBall(row, col, texture)
@@ -194,35 +204,105 @@ export class BallManager extends Component {
                 shootingBall.playBallExplosion()
                 this.nextShootBall()
             } else {
-                this.becomeBubbleBall(shootingBall)
+                // this.becomeBubbleBall(shootingBall)
             }
         } else {
-            this.becomeBubbleBall(shootingBall)
+            // this.becomeBubbleBall(shootingBall)
+        }
+    }
+
+    /** 消除同材质球 */
+    declareSameBall() {
+        if (!this.shootingBall || !this._endPos) {
+            this.nextShootBall()
+            return
+        }
+        const { row, col } = Utils.convertToRowCol(v2(this._endPos.x, this._endPos.y))
+        console.log('endPos', row, col)
+        const texture = this.shootingBall.texture
+
+        // 标记同材质球
+        if (this.bubbleBallList[row] && this.bubbleBallList[row][col]) {
+            // 已存在
+            this.checkSameTextureBall(row, col, texture)
+        } else {
+            // 不存在需要上下左右都检查一遍
+            const leftTop = row % 2 === 1 ? col : col - 1
+            // 左上
+            this.checkSameTextureBall(row - 1, leftTop, texture)
+            // 右上
+            this.checkSameTextureBall(row - 1, leftTop + 1, texture)
+            // 左
+            this.checkSameTextureBall(row, col - 1, texture)
+            // 右
+            this.checkSameTextureBall(row, col + 1, texture)
+            // 左下
+            this.checkSameTextureBall(row + 1, leftTop, texture)
+            // 右下
+            this.checkSameTextureBall(row + 1, leftTop + 1, texture)
+        }
+
+        // 记录标记同材球
+        let sameBallList = []
+        for(let i = 0; i < this.bubbleBallList.length; i++) {
+            if (!this.bubbleBallList[i]) {
+                console.warn('this.bubbleBallList[i] is null', i, this.bubbleBallList[i])
+                continue
+            }
+            for(let j = 0; j < this.bubbleBallList[i].length; j++) {
+                const ball = this.bubbleBallList[i][j]
+                if (!ball) continue
+                if (ball.isSameMark) {
+                    ball.setIsSameMark(false)
+                    sameBallList.push({ ball, row: i, col: j })
+                }
+            }
+        }
+        console.log('sameBallList', sameBallList)
+        // 消除同材质球
+        if (sameBallList.length >= Constants.BALL_REMOVE_COUNT) {
+            sameBallList.forEach(({ ball, row, col }) => {
+                if (ball) {
+                    // 球爆炸
+                    ball.playBallExplosion()
+                    this.bubbleBallList[row][col] = null
+                }
+            })
+            this.shootingBall.playBallExplosion()
+            this.nextShootBall()
+        } else {
+            this.becomeBubbleBall(this.shootingBall, row, col)
         }
     }
 
     /** 射击球成为气泡球 */
-    becomeBubbleBall(ball: Ball) {
-        const pos = ball.getBallPosition()
-        const { row, col } = Utils.convertToRowCol(v2(pos.x, pos.y))
+    becomeBubbleBall(ball: Ball, row: number, col: number) {
+        // const pos = ball.getBallPosition()
+        // console.log('shooting pos', pos)
+        // const { row, col } = Utils.convertToRowCol(v2(pos.x, pos.y))
         const newPos = Utils.convertToPos(row, col)
         ball.setBallPosition(newPos)
-        if (!this.bubbleBallList[row]) {
+        const len = this.bubbleBallList.length
+        if (!this.bubbleBallList[row] && row <= len) {
             this.bubbleBallList[row] = []
             for(let j = 0; j < this.bubbleBallList[0].length; j++) {
                 this.bubbleBallList[row][j] = null
             }
         }
-        if (!this.bubbleBallList[row][col]) {
+        if (this.bubbleBallList[row] && !this.bubbleBallList[row][col]) {
+            console.log('成为气泡球', this._endPos, row, col)
             this.bubbleBallList[row][col] = ball
         } else {
-            console.log('气泡球位置已被占用', this.bubbleBallList[row][col])
+            console.log('气泡球位置已被占用或非法', this.bubbleBallList, row, col)
             // ball.node.destroy()
             ball.playBallExplosion()
         }
-        
-        console.log('成为气泡球', newPos, row, col)
+
         this.nextShootBall()
+    }
+
+    checkHangBubbleBallList() {
+        
     }
 
     nextShootBall() {
@@ -232,19 +312,9 @@ export class BallManager extends Component {
         // }
         // 下一次射击
         // director.emit(Constants.EVENT_TYPE.NEXT_SHOOT_BALL)
+        this.shootingBall = null
+        this._endPos = null
         Constants.gameManager.setShootBallState()
-    }
-
-
-
-    // 清空球列表
-    clearShootBallList() {
-        this.shootBallList.forEach(ball => {
-            if (ball && ball.node) {
-                ball.node.destroy()
-            }
-        })
-        this.shootBallList = []
     }
 
     clearBubbleBallList() {
@@ -263,23 +333,19 @@ export class BallManager extends Component {
     }
 
     shootBallAction(posList: Vec2[]) {
-        this.shootBall.playShootAction(posList, () => {})
-        this.createShootBallNext()
-    }
-
-    /** 获取顶部球 */
-    getShootBall() {
-        return this.shootBallList[this.shootBallList.length - 1]
-    }
-
-    /** 弹出顶部球 */
-    popShootBall() {
-        // const ball = this.getShootBall()
-        // this.scheduleOnce(() => {
-        //     this.shootBallList.splice(-1, 1)
-        // }, 1);
-        const ball = this.shootBallList.pop()
-        return ball
+        if (posList.length === 0) return
+        this.curBall.playShootAction(posList, () => {
+            this.shootingBall = this.curBall
+            this.createShootBallNext()
+        }, () => {
+            // 将世界坐标转换为节点坐标
+            const wPos = posList[posList.length - 1]
+            const uiTransform = this.node.getComponent(UITransform);
+            const nPos = uiTransform.convertToNodeSpaceAR(v3(wPos.x, wPos.y, 0));
+            this._endPos = nPos
+            console.log('shootingBallEnd pos', wPos, nPos)
+            this.declareSameBall()
+        })
     }
 }
 

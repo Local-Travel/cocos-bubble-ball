@@ -19,6 +19,7 @@ import {
 } from "cc";
 import { BallManager } from "./ball/BallManager";
 import { Constants } from "./util/Constant";
+import { Utils } from "./util/Utils";
 const { ccclass, property } = _decorator;
 
 @ccclass("Joystick")
@@ -81,7 +82,7 @@ export class Joystick extends Component {
   }
 
   onTouchMove(event: EventTouch) {
-    if (Constants.gameManager.ballState !== Constants.BALL_SHOOT_STATE.READY) return
+    // if (Constants.gameManager.ballState !== Constants.BALL_SHOOT_STATE.READY) return
 
     this.clearLine();
     this._cur_len = 0;
@@ -104,23 +105,28 @@ export class Joystick extends Component {
     this.direction.y = nPos.y / len;
     this.stick.setPosition(nPos);
     const pos = this.stick.worldPosition;
-    const signAngle = this.direction.signAngle(v2(0, 1));// [-3.14,3.14)
-    // console.log('signAngle', signAngle)
+    // const signAngle = this.direction.signAngle(v2(0, 1));// [-3.14,3.14)
+    const angle = Utils.getAngle(this.direction);
+  
+    // console.log('signAngle', signAngle, angle)
     const startPos = v2(pos.x, pos.y)
     const vec = this.direction.clone();
+    
+    // if (signAngle > Constants.RAY_ANGLE) {
+    //   //  {x: 0.8484285425260061, y: 0.5293099358855802}
+    //   vec.x = 0.848
+    //   vec.y = 0.529
+    // } else if (signAngle < -Constants.RAY_ANGLE) {
+    //   // {x: -0.8488873267103428, y: 0.5285738420983086}
+    //   vec.x = -0.848
+    //   vec.y = 0.529
+    // }
 
-    if (signAngle > Constants.RAY_ANGLE) {
-      //  {x: 0.8484285425260061, y: 0.5293099358855802}
-      vec.x = 0.848
-      vec.y = 0.529
-    } else if (signAngle < -Constants.RAY_ANGLE) {
-      // {x: -0.8488873267103428, y: 0.5285738420983086}
-      vec.x = -0.848
-      vec.y = 0.529
-    }
-
-    if (Math.abs(signAngle) > Math.PI * 0.75) return
+    // if (Math.abs(signAngle) > Math.PI * 8) return
     // console.log('vec', vec)
+    // console.log('angle', angle)
+    if (angle < 30 || angle > 150) return
+
     this.drawRayCast2D(startPos, vec)
   }
 
@@ -137,22 +143,6 @@ export class Joystick extends Component {
     // this.showShootBall();
   }
 
-  // showShootBall() {
-  //   // 显示球
-  //   const ball = this.ballManager.createShootBallOne();
-  //   console.log('joystick pos', ball)
-  //   if (ball) {
-  //     const pos = this.node.position;
-  //     ball.setBallPosition(v2(pos.x, pos.y));
-  //     ball.setVisible(true);
-  //   }
-  // }
-
-  // // 射击小球
-  // shootBall() {
-  //   const ball = this.ballManager.popShootBall();
-  //   ball.playShootAction(this.ballPosList);
-  // }
 
   clearLine() {
     this._g.clear();
@@ -183,10 +173,15 @@ export class Joystick extends Component {
       // 碰撞点
       const point = result.point;
       const hitPoint = point.clone();
+      // 照射的节点
+      const name = collider.node.name;
+      console.log('collider.node.name', name)
+      if (name === 'stick') {
+        return;
+      }
       // 画射线
       this.drawTraceByRayCast2D(startPos, point);
-      // console.log('collider.node.name', collider.node.name)
-      if (collider.node.name === 'ball' || collider.node.name === 'shootBall') {
+      if (name === 'ball' || name === 'shootBall') {
         return;
       }
       // 当前长度
@@ -209,8 +204,14 @@ export class Joystick extends Component {
   }
 
   drawTraceByRayCast2D(startPos: Vec2, endPos: Vec2) {
-    if (startPos.x === endPos.x && startPos.y === endPos.y) return;
-    this.pushPosList(startPos)
+    // const distance = Vec2.distance(startPos, endPos);
+    // console.log('distance', distance)
+    // if (distance < 1) return;
+    if (!this.ballPosList.length) {  
+      this.pushPosList(v2(this.node.position.x, this.node.position.y))
+    } else {
+      this.pushPosList(startPos)
+    }
     this.pushPosList(endPos)
     // 把世界坐标转换成节点坐标
     const nPos = this._uiTransform.convertToNodeSpaceAR(v3(startPos.x, startPos.y, 0));
@@ -243,6 +244,8 @@ export class Joystick extends Component {
       const lastPos = this.ballPosList[len - 1];
       if (lastPos.x === pos.x && lastPos.y === pos.y) return;
     }
+    // console.log('pos', pos, this.node.worldPosition.y)
+    if (pos.y < this.node.worldPosition.y + 30) return;
     this.ballPosList.push(pos);
   }
 }

@@ -18,7 +18,7 @@ export class GameManager extends Component {
     start() {
         // 注册全局碰撞回调函数
         if (PhysicsSystem2D.instance) {
-            PhysicsSystem2D.instance.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this);
+            PhysicsSystem2D.instance.on(Contact2DType.BEGIN_CONTACT, this.onEndContact, this);
         }
         this.init();
     }
@@ -30,7 +30,7 @@ export class GameManager extends Component {
     protected onDestroy(): void {
         // 取消注册全局碰撞回调函数 
         if (PhysicsSystem2D.instance) {
-            PhysicsSystem2D.instance.off(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this);
+            PhysicsSystem2D.instance.off(Contact2DType.BEGIN_CONTACT, this.onEndContact, this);
         }
     }
 
@@ -43,16 +43,17 @@ export class GameManager extends Component {
     }
 
     shootBallAction(posList: Vec2[]) {
-        if (this.ballState === Constants.BALL_SHOOT_STATE.READY) {
+        if (this.ballState === Constants.BALL_SHOOT_STATE.READY && posList.length) {
+            this.ballState = Constants.BALL_SHOOT_STATE.SHOOTING;
             this.ballManager.shootBallAction(posList);
         }
     }
 
-    onBeginContact(selfCollider: Collider2D, otherCollider: Collider2D) {
+    onEndContact(selfCollider: Collider2D, otherCollider: Collider2D) {
         // 只在两个碰撞体开始接触时被调用一次
-        // console.log('onBeginContact', selfCollider, otherCollider);
+        // console.log('onEndContact', selfCollider, otherCollider);
         // 撞击球检测
-        if (this.ballState === Constants.BALL_SHOOT_STATE.HIT_BALL || !otherCollider.node || !selfCollider.node) {
+        if (this.ballState !== Constants.BALL_SHOOT_STATE.READY || !otherCollider.node || !selfCollider.node) {
             return;
         }
         if (otherCollider.node.name === 'shootBall' && selfCollider.node.name === 'ball') {

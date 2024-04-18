@@ -9,12 +9,12 @@ export function getLevelData(level: number) {
       name: '第一关',
       desc: '这是第一关',
       list: [
-        1, 1, 1, 1, 1, 2, 2, 2,
-        1, 1, 2, 1, 2, 2, 2, 2,
-        1, 2, 2, 1, 1, 1, 2, 2,
-        1, 1, 1, 0, 2, 2, 1, 2,
-        1, 1, 2, 0, 0, 2, 1, 1,
-        1, 1, 2, 0, 0, 2, 2, 1,
+        1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1,
+        1, 1, 2, 2, 2, 2, 2, 2, 1, 1, 1,
+        1, 2, 2, 2, 1, 1, 2, 2, 1, 1, 1,
+        2, 1, 1, 0, 2, 2, 1, 2, 1, 1, 1,
+        1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1,
+        1, 1, 2, 1, 1, 2, 2, 1, 1, 1, 1,
       ]
     },
     {
@@ -33,7 +33,7 @@ export function getLevelData(level: number) {
     },
   ]
 
-  const col = 8
+  const col = 11
   let data = levelList[0]
   if (level <= levelList.length && level > 0) {
     data = levelList[level - 1]
