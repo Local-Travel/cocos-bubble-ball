@@ -181,7 +181,7 @@ export class Joystick extends Component {
       }
       // 画射线
       this.drawTraceByRayCast2D(startPos, point);
-      if (name === 'ball' || name === 'shootBall') {
+      if (name === 'ball' || name === 'shootBall' || name === 'wall-top') {
         return;
       }
       // 当前长度
