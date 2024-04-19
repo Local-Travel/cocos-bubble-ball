@@ -129,5 +129,18 @@ export class Ball extends Component {
             this.node.destroy()
         }).start(); 
     }
+
+    /** 弹球替换 */
+    playShootBallChange(cb: Function) {
+        const pos = this.node.position
+        tween(this.node)
+        .to(0.15, { 
+            position: v3(pos.x - Constants.STICK_RADIUS, pos.y + Constants.STICK_RADIUS, 0) }, { easing: "smooth" }
+        ).to(0.15, {
+            position: v3(pos.x, pos.y + Constants.STICK_RADIUS * 2, 0) }, { easing: "smooth" }
+        ).call(() => {
+            cb()
+        }).start();
+    }
 }
 

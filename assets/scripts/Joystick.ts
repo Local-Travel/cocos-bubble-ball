@@ -58,6 +58,7 @@ export class Joystick extends Component {
     this.stick.on(Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
 
     // director.on(Constants.EVENT_TYPE.NEXT_SHOOT_BALL, this.listenCreateShootBall, this)
+    director.emit(Constants.EVENT_TYPE.STICK_REGISTER_SUCCESS, this.node.position)
   }
 
   update(deltaTime: number) {
@@ -105,27 +106,15 @@ export class Joystick extends Component {
     this.direction.y = nPos.y / len;
     this.stick.setPosition(nPos);
     const pos = this.stick.worldPosition;
+    // console.log('this.stick.worldPosition', this.stick.worldPosition, this.stick.position, this.node.position)
     // const signAngle = this.direction.signAngle(v2(0, 1));// [-3.14,3.14)
     const angle = Utils.getAngle(this.direction);
   
     // console.log('signAngle', signAngle, angle)
-    const startPos = v2(pos.x, pos.y)
+    const startPos = v2(pos.x, pos.y + Constants.STICK_RADIUS)
     const vec = this.direction.clone();
     
-    // if (signAngle > Constants.RAY_ANGLE) {
-    //   //  {x: 0.8484285425260061, y: 0.5293099358855802}
-    //   vec.x = 0.848
-    //   vec.y = 0.529
-    // } else if (signAngle < -Constants.RAY_ANGLE) {
-    //   // {x: -0.8488873267103428, y: 0.5285738420983086}
-    //   vec.x = -0.848
-    //   vec.y = 0.529
-    // }
-
-    // if (Math.abs(signAngle) > Math.PI * 8) return
-    // console.log('vec', vec)
-    // console.log('angle', angle)
-    if (angle < 30 || angle > 150) return
+    if (angle < 0 || angle > 180) return
 
     this.drawRayCast2D(startPos, vec)
   }
@@ -207,11 +196,12 @@ export class Joystick extends Component {
     // const distance = Vec2.distance(startPos, endPos);
     // console.log('distance', distance)
     // if (distance < 1) return;
-    if (!this.ballPosList.length) {  
-      this.pushPosList(v2(this.node.position.x, this.node.position.y))
-    } else {
-      this.pushPosList(startPos)
-    }
+    // if (!this.ballPosList.length) {  
+    //   this.pushPosList(v2(this.node.position.x, this.node.position.y + Constants.STICK_RADIUS))
+    // } else {
+    //   this.pushPosList(startPos)
+    // }
+    this.pushPosList(startPos)
     this.pushPosList(endPos)
     // 把世界坐标转换成节点坐标
     const nPos = this._uiTransform.convertToNodeSpaceAR(v3(startPos.x, startPos.y, 0));

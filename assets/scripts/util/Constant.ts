@@ -27,6 +27,9 @@ enum EVENT_TYPE {
 
   /** 下一个发球 */
   NEXT_SHOOT_BALL = 'next-shoot-ball',
+
+  /** stick注册成功 */
+  STICK_REGISTER_SUCCESS = 'stick-register-success',
 }
 
 // 球类型
@@ -55,8 +58,12 @@ export class Constants {
 //   static audioManager: AudioManager;
 
   // screen
+  static HEADER_HEIGHT = 70; // 头部高度
   static SCREEN_TOP_X = 375 / 2; // 屏幕左上角X位置
-  static SCREEN_TOP_Y = 667 / 2; // 屏幕左上角Y位置
+  static SCREEN_TOP_Y = 667 / 2 - this.HEADER_HEIGHT; // 屏幕左上角Y位置
+
+  // stick
+  static STICK_RADIUS = 40; // 球杆半径
 
   // ball
   static BALL_RADIUS = 16; // 球的半径

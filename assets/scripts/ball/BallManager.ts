@@ -21,22 +21,29 @@ export class BallManager extends Component {
     private _skinStyle: string = ''
     private _ballSkin = null
     private _endPos = null
+    private _joyStickPos = null
 
     onLoad() {
         this._skinStyle = 'Style1'
         this._ballSkin = Constants.BALL_SKIN[this._skinStyle]
+        director.on(Constants.EVENT_TYPE.STICK_REGISTER_SUCCESS, this.listenJoyStickPosition, this)
     }
 
     start() {
         this.createBubbleBallList()
-        this.initShootBall()
-        director.emit(Constants.EVENT_TYPE.NEXT_SHOOT_BALL)
     }
 
     onDestroy() {
         this.curBall.node.destroy()
         this.nextBall.node.destroy()
         this.clearBubbleBallList()
+        director.off(Constants.EVENT_TYPE.STICK_REGISTER_SUCCESS, this.listenJoyStickPosition, this)
+    }
+
+    listenJoyStickPosition(pos: Vec3) {
+        console.log('listenJoyStickPosition', pos)
+        this._joyStickPos = pos
+        this.initShootBall()
     }
 
     initShootBall() {
@@ -74,8 +81,9 @@ export class BallManager extends Component {
     }
 
     createShootBallOne() {
+        const pos = this._joyStickPos || v3(0, -156, 0)
         const code = math.randomRangeInt(1, 3)
-        const ball = this.createBall(Constants.BALL_TYPE.SHOOT_BALL, v3(0, -280, 0), code.toString(), true)
+        const ball = this.createBall(Constants.BALL_TYPE.SHOOT_BALL, v3(pos.x, pos.y - Constants.STICK_RADIUS, 0), code.toString(), true)
         return ball
     }
 
@@ -83,10 +91,10 @@ export class BallManager extends Component {
     createShootBallNext() {
         this.curBall = this.nextBall
         console.log('置换球', this.curBall.texture)
-        const pos = this.curBall.getBallPosition()
-        this.curBall.setBallPosition(v2(pos.x, pos.y + Constants.BALL_RADIUS * 2 + 10))
-        const ball = this.createShootBallOne()
-        this.nextBall = ball
+        this.curBall.playShootBallChange(() => {
+            const ball = this.createShootBallOne()
+            this.nextBall = ball
+        })
     }
 
     createBubbleBallList() {
