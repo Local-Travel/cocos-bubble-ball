@@ -1,4 +1,4 @@
-import { _decorator, Component, director, instantiate, Material, math, MeshRenderer, Node, Prefab, resources, UITransform, v3, Vec2, Vec3 } from 'cc';
+import { _decorator, Component, director, instantiate, Layers, Material, math, MeshRenderer, Node, Prefab, resources, Size, Sprite, SpriteFrame, UITransform, v3, Vec2, Vec3 } from 'cc';
 import { Ball } from './Ball';
 import { Constants } from '../util/Constant';
 import { BallManager } from './BallManager';
@@ -115,6 +115,7 @@ export class BallControl extends Component {
             this.curBall.playShootBallChange(() => {
                 const ball = this.createShootBallOne()
                 this.nextBall = ball
+                console.log('ball', ball)
             })
         }
     }
@@ -135,6 +136,46 @@ export class BallControl extends Component {
         })
     }
 
+    grantSkillToShootBall(skillName: string) {
+        console.log('grantSkillToShootBall', skillName)
+        // 当前的准备射击的球要赋予技能
+        switch(skillName) {
+            case Constants.PROPS_NAME.BOMB:
+            case Constants.PROPS_NAME.LIGHTNING:
+            case Constants.PROPS_NAME.RAINBOW:
+                this.addSkillSkinToBall(skillName, this.curBall)
+                break;
+            default:
+                break;
+        }
+    }
+
+    /** 换上技能皮肤 */
+    addSkillSkinToBall(skillName: string, ball: Ball) {
+        const url = `texture/game-props/${skillName}/spriteFrame`
+        resources.load(url, SpriteFrame, (err: any, spriteFrame: SpriteFrame) => {
+            console.log(err, spriteFrame)
+            if (spriteFrame && ball && ball.node) {
+                // this.musicRoot.getChildByName('icon').getComponent(Sprite).spriteFrame = spriteFrame;
+                const newNodeName = 'skillNode'
+                let spriteNode = ball.node.getChildByName(newNodeName)
+                if (spriteNode) {
+                    spriteNode.getComponent(Sprite).spriteFrame = spriteFrame
+                } else {
+                    const skillNode = new Node(newNodeName)
+                    skillNode.layer = Layers.Enum.UI_2D
+                    const spriteComp = skillNode.addComponent(Sprite)
+                    spriteComp.sizeMode = Sprite.SizeMode.CUSTOM
+                    spriteComp.type = Sprite.Type.SIMPLE
+                    spriteComp.spriteFrame = spriteFrame
+                    const uiTransform = skillNode.addComponent(UITransform)
+                    uiTransform.setContentSize(new Size(1, 1))
+                    ball.node.addChild(skillNode)
+                    // console.log('add skillNode', ball)
+                }
+            }
+        });
+    }
 
 }
 

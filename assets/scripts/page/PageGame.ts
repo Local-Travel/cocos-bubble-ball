@@ -1,6 +1,7 @@
 import { _decorator, Component, Label, Node, ProgressBar, Sprite } from 'cc';
 import { Constants } from '../util/Constant';
 import { getLevelData } from '../data/LevelData';
+import { User } from '../data/User';
 const { ccclass, property } = _decorator;
 
 @ccclass('PageGame')
@@ -84,18 +85,27 @@ export class PageGame extends Component {
 
     /** 点击爆炸技能 */
     onClickBomb() {
-        Constants.dialogManager.showTipLabel('赋予发射泡泡爆炸技能')
-        
+        this.grantSkill(Constants.PROPS_NAME.BOMB)
     }
 
     /** 点击彩虹技能 */
     onClickRainBow() {
-        
+        this.grantSkill(Constants.PROPS_NAME.RAINBOW)
     }
 
     /** 点击闪电技能 */
     onClickLightning() {
-        
+        this.grantSkill(Constants.PROPS_NAME.LIGHTNING)
+    }
+
+    grantSkill(skillName: string) {
+        const count = User.instance().getGameProps(skillName)
+        if (count <= 0) {
+            // TODO: 弹框
+            Constants.dialogManager.showTipLabel('道具不足，分享可免费获得该技能')
+            return
+        }
+        Constants.gameManager.grantSkillToShootBall(skillName)
     }
 
     // 计算分数

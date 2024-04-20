@@ -82,7 +82,10 @@ enum BALL_SHOOT_STATE {
   HIT_BALL = 'hit-ball',
 }
 
-/** 道具名称 */
+/** 
+ * 道具名称
+ * 注意：需要与resources/texture/game-props/下的文件名对应
+ */
 enum PROPS_NAME {
   /** 炸弹球 */
   BOMB = 'bomb',

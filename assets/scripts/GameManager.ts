@@ -85,6 +85,7 @@ export class GameManager extends Component {
     // 赋予技能给球
     grantSkillToShootBall(skill: string) {
         if (this.gameStatus !== Constants.GAME_STATE.READY || this.ballState !== Constants.BALL_SHOOT_STATE.READY) return 
+        this.ballControl.grantSkillToShootBall(skill);
     }
 
 
