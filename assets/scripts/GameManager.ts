@@ -6,12 +6,13 @@ import { PageGame } from './page/PageGame';
 import { Utils } from './util/Utils';
 import { User } from './data/User';
 import { getLevelData } from './data/LevelData';
+import { BallControl } from './ball/BallControl';
 const { ccclass, property } = _decorator;
 
 @ccclass('GameManager')
 export class GameManager extends Component {
-    @property(BallManager)
-    ballManager: BallManager = null;
+    @property(BallControl)
+    ballControl: BallControl = null;
 
     @property(PageGame)
     pageGame: PageGame = null;
@@ -54,13 +55,12 @@ export class GameManager extends Component {
     init() {
         const user = User.instance();
         const userLevel = this.userLevelTest || user.getLevel();
-        // const ballSkin = user.getBallSkin();
-        const ballSkin = 'Style2';
+        const ballSkin = user.getBallSkin();
         const { col, list, data } = getLevelData(userLevel);
         console.log('userLevel', userLevel)
 
         this.pageGame.init(data.name, data.bubbleCount, data.score);
-        this.ballManager.init(data.bubbleCount, col, list, ballSkin);
+        this.ballControl.init(data.bubbleCount, col, list, ballSkin);
         this.gameStatus = Constants.GAME_STATE.READY;
         this.ballState = Constants.BALL_SHOOT_STATE.READY;
         this._remainBallCount = data.bubbleCount;
@@ -71,7 +71,7 @@ export class GameManager extends Component {
         if (this.gameStatus !== Constants.GAME_STATE.READY) return
         if (this.ballState === Constants.BALL_SHOOT_STATE.READY && posList.length) {
             this.ballState = Constants.BALL_SHOOT_STATE.SHOOTING;
-            this.ballManager.shootBallAction(posList, () => {
+            this.ballControl.shootBallAction(posList, () => {
                 // 成功发射球
                 this._remainBallCount--
                 this.pageGame.updateShootBallCount(this._remainBallCount)
@@ -81,6 +81,12 @@ export class GameManager extends Component {
             });
         }
     }
+
+    // 赋予技能给球
+    grantSkillToShootBall(skill: string) {
+        if (this.gameStatus !== Constants.GAME_STATE.READY || this.ballState !== Constants.BALL_SHOOT_STATE.READY) return 
+    }
+
 
     gameOver(type: string) {
         switch(type) {
@@ -119,7 +125,7 @@ export class GameManager extends Component {
             this.ballState = Constants.BALL_SHOOT_STATE.HIT_BALL;
             const hitBall = selfCollider.node.getComponent(Ball);
             const shootBall = otherCollider.node.getComponent(Ball);
-            this.ballManager.handleHitBall(hitBall, shootBall);
+            // this.ballManager.handleHitBall(hitBall, shootBall);
         }
     }
 }

@@ -84,7 +84,8 @@ export class PageGame extends Component {
 
     /** 点击爆炸技能 */
     onClickBomb() {
-        Constants.dialogManager.showTipLabel('观看视频可免费获得该技能')
+        Constants.dialogManager.showTipLabel('赋予发射泡泡爆炸技能')
+        
     }
 
     /** 点击彩虹技能 */

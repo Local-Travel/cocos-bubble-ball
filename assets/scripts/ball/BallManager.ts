@@ -2,36 +2,21 @@ import { _decorator, Component, director, instantiate, Material, math, MeshRende
 import { Constants } from '../util/Constant';
 import { Ball } from './Ball';
 import { Utils } from '../util/Utils';
-import { getLevelData } from '../data/LevelData';
 import { PageGame } from '../page/PageGame';
+import { BallControl } from './BallControl';
 const { ccclass, property } = _decorator;
 
 @ccclass('BallManager')
 export class BallManager extends Component {
     @property(Prefab)
     ballPrefab: Prefab = null
-    @property(Prefab)
-    shootBallPrefab: Prefab = null
 
     @property(PageGame)
     pageGame: PageGame = null
+    @property(BallControl)
+    ballControl: BallControl = null
 
     bubbleBallList: (Ball|null)[][] = []
-
-    curBall: Ball = null
-    nextBall: Ball = null
-    shootingBall: Ball = null
-
-    private _ballSkin = null
-    private _endPos = null
-    private _joyStickPos = null
-
-    // 当前可创建球的数量
-    private _remainCreateCount: number = 0
-
-    onLoad() {
-        director.on(Constants.EVENT_TYPE.STICK_REGISTER_SUCCESS, this.listenJoyStickPosition, this)
-    }
 
     start() {
 
@@ -39,101 +24,17 @@ export class BallManager extends Component {
 
     onDestroy() {
         this.clearBubbleBallList()
-        this.destroyShootBall()
-        
-        director.off(Constants.EVENT_TYPE.STICK_REGISTER_SUCCESS, this.listenJoyStickPosition, this)
     }
 
-    listenJoyStickPosition(pos: Vec3) {
-        console.log('listenJoyStickPosition', pos)
-        this._joyStickPos = pos
-    }
 
     /**
      * 初始化
-     * @param createBallCount 可创建球的数量
      * @param col 生成列数量
      * @param list 生成泡泡的参考列表
      */
-    init(createBallCount: number, col: number, list: number[], ballSkin: string = 'Style1') {
+    init(col: number, list: number[]) {
         this.clearBubbleBallList()
-        this.destroyShootBall()
-
-        this.curBall = null
-        this.nextBall = null
-        this.shootingBall = null
-        this._ballSkin = Constants.BALL_SKIN[ballSkin] || {}
-
-        this._remainCreateCount = createBallCount
         this.createBubbleBallList(col, list)
-        this.initShootBall()
-    }
-
-    initShootBall() {
-        this.nextBall = this.createShootBallOne()
-        this.createShootBallNext()
-    }
-
-    destroyShootBall() {
-        if (this.curBall && this.curBall.node) {
-            this.curBall.node.destroy()
-        }
-        if (this.nextBall && this.nextBall.node) {
-            this.nextBall.node.destroy()
-        }
-        if (this.shootingBall && this.shootingBall.node) {
-            this.shootingBall.node.destroy()
-        } 
-    }
-
-    setBallMaterial(ball: Node, texture: string) {
-        const ballTextPath = this._ballSkin.pathDir + texture
-        const ballNode = ball ? ball.children[0] : null
-        if (ballNode) {
-            resources.load(ballTextPath, Material, (err, material) => {
-                // console.log('load material', err, material)
-                ballNode.getComponent(MeshRenderer).material = material;
-            });
-        }
-    }
- 
-    createBall(ballType: string, pos: Vec3, ballCode: string, visible: boolean = false) {
-        let ball = null
-        if (ballType === Constants.BALL_TYPE.SHOOT_BALL) {
-            ball = instantiate(this.shootBallPrefab)
-        } else {
-            ball = instantiate(this.ballPrefab)
-        }
-        // const ball = PoolManager.instance().getNode(this.prefab, this.node)
-        const texture = this._ballSkin.skin + ballCode
-        this.setBallMaterial(ball, texture)
-        ball.setParent(this.node)
-        ball.setPosition(pos)
-        const ballComp = ball.getComponent(Ball)
-        ballComp.setBallProp(texture, visible)
-        
-        return ballComp
-    }
-
-    createShootBallOne() {
-        this._remainCreateCount--
-        if (this._remainCreateCount < 0) return null
-        const pos = this._joyStickPos || v3(0, -156, 0)
-        const code = math.randomRangeInt(1, 3)
-        const ball = this.createBall(Constants.BALL_TYPE.SHOOT_BALL, v3(pos.x, pos.y - Constants.STICK_RADIUS, 0), code.toString(), true)
-        return ball
-    }
-
-    /** 置换球，并生成新的射球 */
-    createShootBallNext() {
-        this.curBall = this.nextBall
-        if (this.curBall) {
-            console.log('置换球', this.curBall.texture)
-            this.curBall.playShootBallChange(() => {
-                const ball = this.createShootBallOne()
-                this.nextBall = ball
-            })
-        }
     }
 
     createBubbleBallList(col: number, list: number[]) {
@@ -148,7 +49,7 @@ export class BallManager extends Component {
                     continue
                 }
                 const pos = Utils.convertToPos(i, j)
-                const ball = this.createBall(Constants.BALL_TYPE.BUBBLE_BALL, v3(pos.x, pos.y, 0), code.toString(), true)
+                const ball = this.ballControl.createBall(this.ballPrefab, v3(pos.x, pos.y, 0), code.toString(), true)
                 ballList[i][j] = ball
             }
         }
@@ -234,14 +135,14 @@ export class BallManager extends Component {
     }
 
     /** 消除同材质球 */
-    declareSameBall() {
-        if (!this.shootingBall || !this._endPos) {
+    declareSameBall(shootingBall: Ball, endPos: Vec3) {
+        if (!shootingBall || !endPos) {
             this.nextShootBall()
             return
         }
-        const { row, col } = Utils.convertToRowCol(v2(this._endPos.x, this._endPos.y))
-        console.log('endPos', row, col)
-        const texture = this.shootingBall.texture
+        const { row, col } = Utils.convertToRowCol(v2(endPos.x, endPos.y))
+        // console.log('endPos', row, col)
+        const texture = shootingBall.texture
 
         // 标记同材质球
         if (this.bubbleBallList[row] && this.bubbleBallList[row][col]) {
@@ -290,14 +191,14 @@ export class BallManager extends Component {
                     this.bubbleBallList[row][col] = null
                 }
             })
-            this.shootingBall.playBallExplosion()
+            shootingBall.playBallExplosion()
             // 处理悬空的球
             const hangCount = this.handleHangBubbleBallList()
             const bombCount = sameBallList.length
 
             this.nextShootBall(bombCount, hangCount)
         } else {
-            this.becomeBubbleBall(this.shootingBall, row, col)
+            this.becomeBubbleBall(shootingBall, row, col)
         }
     }
 
@@ -347,7 +248,6 @@ export class BallManager extends Component {
                 }
             }
             if (isLinked || row === 0) {
-                console.log('成为气泡球', this._endPos, row, col)
                 this.bubbleBallList[row][col] = ball
                 isBubble = true
             }
@@ -428,8 +328,6 @@ export class BallManager extends Component {
     }
 
     nextShootBall(bombCount: number = 0, hangCount: number = 0) {
-        this.shootingBall = null
-        this._endPos = null
         this.pageGame.calcScore(bombCount, hangCount)
         // 清除末端的空数组
         const len = this.bubbleBallList.length
@@ -442,7 +340,6 @@ export class BallManager extends Component {
                 break
             }
         }
-        // console.log('this.bubbleBallList', this.bubbleBallList)
         // 如果末端的长度数据
         Constants.gameManager.checkBubbleListLength(this.bubbleBallList.length)
     }
@@ -460,23 +357,6 @@ export class BallManager extends Component {
             })
         }
         this.bubbleBallList = []
-    }
-
-    shootBallAction(posList: Vec2[], callback: Function) {
-        if (posList.length === 0 || !this.curBall) return
-        this.curBall.playShootAction(posList, () => {
-            this.shootingBall = this.curBall
-            this.createShootBallNext()
-            callback()
-        }, () => {
-            // 将世界坐标转换为节点坐标
-            const wPos = posList[posList.length - 1]
-            const uiTransform = this.node.getComponent(UITransform);
-            const nPos = uiTransform.convertToNodeSpaceAR(v3(wPos.x, wPos.y, 0));
-            this._endPos = nPos
-            console.log('shootingBallEnd pos', wPos, nPos)
-            this.declareSameBall()
-        })
     }
 }
 

@@ -99,7 +99,7 @@ const PROPS_TYPE = {
   /** 炸弹球 */
   bomb: {
     name: PROPS_NAME.BOMB,
-    desc: '炸弹泡泡可以消除碰撞到的泡泡',
+    desc: '炸弹泡泡可以消除方圆内的泡泡',
     value: 1,
   },
 
@@ -113,7 +113,7 @@ const PROPS_TYPE = {
   /** 闪电球 */
   lightning: {
     name: PROPS_NAME.LIGHTNING,
-    desc: '闪电泡泡会消除射线上的所有泡泡',
+    desc: '闪电泡泡会消除同一行的所有泡泡',
     value: 1,
   },
 }
