@@ -17,9 +17,9 @@ import {
   Vec2,
   view,
 } from "cc";
-import { BallManager } from "./ball/BallManager";
-import { Constants } from "./util/Constant";
-import { Utils } from "./util/Utils";
+import { BallManager } from "../ball/BallManager";
+import { Constants } from "../util/Constant";
+import { Utils } from "../util/Utils";
 const { ccclass, property } = _decorator;
 
 @ccclass("Joystick")
@@ -51,12 +51,21 @@ export class Joystick extends Component {
     this._g = this.getComponent(Graphics);
   }
 
-  start() {
+  protected onEnable(): void {
     this.stick.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
     this.stick.on(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
     this.stick.on(Node.EventType.TOUCH_END, this.onTouchEnd, this);
     this.stick.on(Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
+  }
 
+  protected onDisable(): void {
+    this.stick.off(Node.EventType.TOUCH_START, this.onTouchStart, this);
+    this.stick.off(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
+    this.stick.off(Node.EventType.TOUCH_END, this.onTouchEnd, this);
+    this.stick.off(Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
+  }
+
+  start() {
     // director.on(Constants.EVENT_TYPE.NEXT_SHOOT_BALL, this.listenCreateShootBall, this)
     director.emit(Constants.EVENT_TYPE.STICK_REGISTER_SUCCESS, this.node.position)
   }
@@ -66,11 +75,6 @@ export class Joystick extends Component {
   }
 
   onDestroy() {
-    this.stick.off(Node.EventType.TOUCH_START, this.onTouchStart, this);
-    this.stick.off(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
-    this.stick.off(Node.EventType.TOUCH_END, this.onTouchEnd, this);
-    this.stick.off(Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
-
     // director.off(Constants.EVENT_TYPE.NEXT_SHOOT_BALL, this.listenCreateShootBall, this)
   }
 

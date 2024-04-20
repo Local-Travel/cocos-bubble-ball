@@ -2,7 +2,8 @@ import { _decorator, Component, director, instantiate, Material, math, MeshRende
 import { Constants } from '../util/Constant';
 import { Ball } from './Ball';
 import { Utils } from '../util/Utils';
-import { getLevelData } from '../data/levelData';
+import { getLevelData } from '../data/LevelData';
+import { PageGame } from '../page/PageGame';
 const { ccclass, property } = _decorator;
 
 @ccclass('BallManager')
@@ -12,43 +13,77 @@ export class BallManager extends Component {
     @property(Prefab)
     shootBallPrefab: Prefab = null
 
+    @property(PageGame)
+    pageGame: PageGame = null
+
     bubbleBallList: (Ball|null)[][] = []
 
     curBall: Ball = null
     nextBall: Ball = null
     shootingBall: Ball = null
 
-    private _skinStyle: string = ''
     private _ballSkin = null
     private _endPos = null
     private _joyStickPos = null
 
+    // 当前可创建球的数量
+    private _remainCreateCount: number = 0
+
     onLoad() {
-        this._skinStyle = 'Style1'
-        this._ballSkin = Constants.BALL_SKIN[this._skinStyle]
         director.on(Constants.EVENT_TYPE.STICK_REGISTER_SUCCESS, this.listenJoyStickPosition, this)
     }
 
     start() {
-        this.createBubbleBallList()
+
     }
 
     onDestroy() {
-        this.curBall.node.destroy()
-        this.nextBall.node.destroy()
         this.clearBubbleBallList()
+        this.destroyShootBall()
+        
         director.off(Constants.EVENT_TYPE.STICK_REGISTER_SUCCESS, this.listenJoyStickPosition, this)
     }
 
     listenJoyStickPosition(pos: Vec3) {
         console.log('listenJoyStickPosition', pos)
         this._joyStickPos = pos
+    }
+
+    /**
+     * 初始化
+     * @param createBallCount 可创建球的数量
+     * @param col 生成列数量
+     * @param list 生成泡泡的参考列表
+     */
+    init(createBallCount: number, col: number, list: number[], ballSkin: string = 'Style1') {
+        this.clearBubbleBallList()
+        this.destroyShootBall()
+
+        this.curBall = null
+        this.nextBall = null
+        this.shootingBall = null
+        this._ballSkin = Constants.BALL_SKIN[ballSkin] || {}
+
+        this._remainCreateCount = createBallCount
+        this.createBubbleBallList(col, list)
         this.initShootBall()
     }
 
     initShootBall() {
         this.nextBall = this.createShootBallOne()
         this.createShootBallNext()
+    }
+
+    destroyShootBall() {
+        if (this.curBall && this.curBall.node) {
+            this.curBall.node.destroy()
+        }
+        if (this.nextBall && this.nextBall.node) {
+            this.nextBall.node.destroy()
+        }
+        if (this.shootingBall && this.shootingBall.node) {
+            this.shootingBall.node.destroy()
+        } 
     }
 
     setBallMaterial(ball: Node, texture: string) {
@@ -81,6 +116,8 @@ export class BallManager extends Component {
     }
 
     createShootBallOne() {
+        this._remainCreateCount--
+        if (this._remainCreateCount < 0) return null
         const pos = this._joyStickPos || v3(0, -156, 0)
         const code = math.randomRangeInt(1, 3)
         const ball = this.createBall(Constants.BALL_TYPE.SHOOT_BALL, v3(pos.x, pos.y - Constants.STICK_RADIUS, 0), code.toString(), true)
@@ -90,17 +127,16 @@ export class BallManager extends Component {
     /** 置换球，并生成新的射球 */
     createShootBallNext() {
         this.curBall = this.nextBall
-        console.log('置换球', this.curBall.texture)
-        this.curBall.playShootBallChange(() => {
-            const ball = this.createShootBallOne()
-            this.nextBall = ball
-        })
+        if (this.curBall) {
+            console.log('置换球', this.curBall.texture)
+            this.curBall.playShootBallChange(() => {
+                const ball = this.createShootBallOne()
+                this.nextBall = ball
+            })
+        }
     }
 
-    createBubbleBallList() {
-        // const colmaxCol = Utils.getMaxCol();
-        const level = 1;
-        const { col, list } = getLevelData(level);
+    createBubbleBallList(col: number, list: number[]) {
         const ballList = []
         const row = Math.round(list.length / col)
         for(let i = 0; i < row; i++) {
@@ -149,28 +185,6 @@ export class BallManager extends Component {
         this.checkSameTextureBall(row + 1, leftTop, texture)
         // 右下
         this.checkSameTextureBall(row + 1, leftTop + 1, texture)
-
-        // // 标记同材质球
-        // // 上
-        // this.checkSameTextureBall(row - 1, col, texture)
-        // // 下
-        // this.checkSameTextureBall(row + 1, col, texture)
-        // // 左
-        // this.checkSameTextureBall(row, col - 1, texture)
-        // // 右
-        // this.checkSameTextureBall(row, col + 1, texture)
-
-        // if (row % 2 === 0) {// 偶数行
-        //     // 右上
-        //     this.checkSameTextureBall(row - 1, col + 1, texture)
-        //     // 右下
-        //     this.checkSameTextureBall(row + 1, col + 1, texture)
-        // } else {// 奇数行
-        //     // 左上
-        //     this.checkSameTextureBall(row - 1, col - 1, texture)
-        //     // 左下
-        //     this.checkSameTextureBall(row + 1, col - 1, texture)
-        // }
     }
 
     /**
@@ -278,9 +292,10 @@ export class BallManager extends Component {
             })
             this.shootingBall.playBallExplosion()
             // 处理悬空的球
-            this.handleHangBubbleBallList()
+            const hangCount = this.handleHangBubbleBallList()
+            const bombCount = sameBallList.length
 
-            this.nextShootBall()
+            this.nextShootBall(bombCount, hangCount)
         } else {
             this.becomeBubbleBall(this.shootingBall, row, col)
         }
@@ -375,8 +390,8 @@ export class BallManager extends Component {
     /**
      * 检测空悬挂的球
      */
-    handleHangBubbleBallList() {
-        if (this.bubbleBallList.length === 0) return
+    handleHangBubbleBallList(): number {
+        if (this.bubbleBallList.length === 0) return 0
         const hangBubbleList = []
         const colList = this.bubbleBallList[0]
         // 标记与第一行有接触的球
@@ -409,18 +424,27 @@ export class BallManager extends Component {
                 this.bubbleBallList[row][col] = null
             }
         })
+        return hangBubbleList.length
     }
 
-    nextShootBall() {
-        // if (this.shootBallList.length === 0) {
-        //     console.log('没有射击球了')
-        //     return
-        // }
-        // 下一次射击
-        // director.emit(Constants.EVENT_TYPE.NEXT_SHOOT_BALL)
+    nextShootBall(bombCount: number = 0, hangCount: number = 0) {
         this.shootingBall = null
         this._endPos = null
-        Constants.gameManager.setShootBallState()
+        this.pageGame.calcScore(bombCount, hangCount)
+        // 清除末端的空数组
+        const len = this.bubbleBallList.length
+        for(let i = len - 1; i >= 0; i--) {
+            const arr = this.bubbleBallList[i]
+            const isEmpty = arr.every(ball => !ball)
+            if (isEmpty) {
+                this.bubbleBallList.pop()
+            } else {
+                break
+            }
+        }
+        // console.log('this.bubbleBallList', this.bubbleBallList)
+        // 如果末端的长度数据
+        Constants.gameManager.checkBubbleListLength(this.bubbleBallList.length)
     }
 
     clearBubbleBallList() {
@@ -438,11 +462,12 @@ export class BallManager extends Component {
         this.bubbleBallList = []
     }
 
-    shootBallAction(posList: Vec2[]) {
-        if (posList.length === 0) return
+    shootBallAction(posList: Vec2[], callback: Function) {
+        if (posList.length === 0 || !this.curBall) return
         this.curBall.playShootAction(posList, () => {
             this.shootingBall = this.curBall
             this.createShootBallNext()
+            callback()
         }, () => {
             // 将世界坐标转换为节点坐标
             const wPos = posList[posList.length - 1]
