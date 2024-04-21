@@ -158,5 +158,7 @@ export class Constants {
   // 道具
   static PROPS_NAME = PROPS_NAME; // 道具名称
   static PROPS_TYPE = PROPS_TYPE; // 道具类型
+  static BOMB_RADIUS = 3; // 炸弹泡泡的半径
+  static LIGHTNING_RADIUS = 1; // 闪电泡泡的半径
 
 }

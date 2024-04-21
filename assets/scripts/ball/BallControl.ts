@@ -115,7 +115,6 @@ export class BallControl extends Component {
             this.curBall.playShootBallChange(() => {
                 const ball = this.createShootBallOne()
                 this.nextBall = ball
-                console.log('ball', ball)
             })
         }
     }
@@ -132,7 +131,11 @@ export class BallControl extends Component {
             const uiTransform = this.node.getComponent(UITransform);
             const nPos = uiTransform.convertToNodeSpaceAR(v3(wPos.x, wPos.y, 0));
             console.log('shootingBallEnd pos', wPos, nPos)
-            this.ballManager.declareSameBall(this.shootingBall, nPos)
+            if (this.shootingBall.skillType) {
+                this.ballManager.eliminateBallBySkill(this.shootingBall, nPos) 
+            } else {
+                this.ballManager.eliminateSameBallNormal(this.shootingBall, nPos) 
+            }
         })
     }
 
@@ -144,6 +147,7 @@ export class BallControl extends Component {
             case Constants.PROPS_NAME.LIGHTNING:
             case Constants.PROPS_NAME.RAINBOW:
                 this.addSkillSkinToBall(skillName, this.curBall)
+                this.curBall.setSkillType(skillName)
                 break;
             default:
                 break;

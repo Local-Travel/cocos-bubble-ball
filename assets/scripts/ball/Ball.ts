@@ -11,6 +11,9 @@ export class Ball extends Component {
     /** 是否标记 */
     public isMark: boolean = false;
 
+    /** 携带技能 */
+    public skillType: string = null;
+
     start () {
         // setTimeout(()=>{
         //     this.playfruitsTween();
@@ -84,6 +87,10 @@ export class Ball extends Component {
         } else {
             this.node.getComponent(RigidBody2D).wakeUp()
         }
+    }
+
+    setSkillType(skillType: string) {
+        this.skillType = skillType
     }
 
     setBallPosition(pos: Vec2) {
