@@ -1,4 +1,4 @@
-import { _decorator, Component, Label, Node, ProgressBar, Sprite } from 'cc';
+import { _decorator, Component, Label, Node, ProgressBar, resources, Sprite, SpriteFrame } from 'cc';
 import { Constants } from '../util/Constant';
 import { getLevelData } from '../data/LevelData';
 import { User } from '../data/User';
@@ -24,6 +24,16 @@ export class PageGame extends Component {
     @property(Node)
     scoreRoot: Node = null
 
+
+    /** 解救目标 */
+    @property(Node)
+    targetRoot: Node = null
+    /** 解救目标 */
+    @property(Node)
+    targetLabel: Node = null
+    @property(Node)
+    targetIcon: Node = null
+
     // 中间
     @property(Node)
     remainBallRoot: Node = null
@@ -39,18 +49,21 @@ export class PageGame extends Component {
     // 当前分数
     private _curScore: number = 0
     private _totalScore: number = 0
+    private _curTargetCount: number = 0
+    private _targetTotalCount: number = 0
+    private _progress: number = 0
     
     protected onEnable(): void {
         this.settingRoot.on(Node.EventType.TOUCH_END, this.onClickSetting, this)
         this.btnBombRoot.on(Node.EventType.TOUCH_END, this.onClickBomb, this)
-        this.btnRainbowRoot.on(Node.EventType.TOUCH_END, this.onClickRainBow, this)
+        this.btnRainbowRoot.on(Node.EventType.TOUCH_END, this.onClickHammer, this)
         this.btnLightningRoot.on(Node.EventType.TOUCH_END, this.onClickLightning, this)
     }
 
     protected onDisable(): void {
         this.settingRoot.off(Node.EventType.TOUCH_END, this.onClickSetting, this)
         this.btnBombRoot.off(Node.EventType.TOUCH_END, this.onClickBomb, this)
-        this.btnRainbowRoot.off(Node.EventType.TOUCH_END, this.onClickRainBow, this)
+        this.btnRainbowRoot.off(Node.EventType.TOUCH_END, this.onClickHammer, this)
         this.btnLightningRoot.off(Node.EventType.TOUCH_END, this.onClickLightning, this)
     }
 
@@ -68,13 +81,23 @@ export class PageGame extends Component {
      * @param bubbleCount 剩余射击泡泡数量
      * @param totalScore 总分
      */
-    init(levelName: string, bubbleCount: number, totalScore: number) {
+    init(levelName: string, bubbleCount: number, totalScore: number, targetCount: number = 0, targetIcon: string = '') {
         this._curScore = 0
         this._totalScore = totalScore
+        this._curTargetCount = 0
+        this._targetTotalCount = targetCount
         // 更新对应的数据
         this.updateLevel(levelName)
         this.updateShootBallCount(bubbleCount)
         this.calcScore(0, 0)
+
+        if (targetCount) {
+            this.targetRoot.active = true
+            this.updateTargetCount(0)
+            this.setTragetIcon(targetIcon)
+        } else {
+            this.targetRoot.active = false
+        }
     }
 
     onClickSetting() {
@@ -88,9 +111,9 @@ export class PageGame extends Component {
         this.grantSkill(Constants.PROPS_NAME.BOMB)
     }
 
-    /** 点击彩虹技能 */
-    onClickRainBow() {
-        this.grantSkill(Constants.PROPS_NAME.RAINBOW)
+    /** 点击锤子技能 */
+    onClickHammer() {
+        this.grantSkill(Constants.PROPS_NAME.HAMMER)
     }
 
     /** 点击闪电技能 */
@@ -149,9 +172,12 @@ export class PageGame extends Component {
             }
             if (r >= 1) {
                 this.activeStar(2, true)
-                Constants.gameManager.gameOver(Constants.GAME_OVER_TYPE.WIN)
+                if (this._targetTotalCount === this._curTargetCount) {
+                    Constants.gameManager.gameOver(Constants.GAME_OVER_TYPE.WIN)
+                }
             }
         }
+        this._progress = r
     }
 
     inActiveAllStar() {
@@ -165,6 +191,26 @@ export class PageGame extends Component {
         const startNode = this.starRoot.getChildByName(keyName)
         startNode.getChildByName('burst').active = isActive
         startNode.getChildByName('icon-star').getComponent(Sprite).grayscale = !isActive
+    }
+
+    setTragetIcon(code: string) {
+        const path = Constants.BALL_EXTEND_DIR + code + '/spriteFrame'
+        resources.load(path, SpriteFrame, (err, spriteFrame) => {
+            // console.log(err, spriteFrame)
+            if (spriteFrame) {
+                if (this.targetIcon) {
+                    this.targetIcon.getComponent(Sprite).spriteFrame = spriteFrame
+                }
+            }
+        })
+    }
+
+    updateTargetCount(count: number) {
+        this._curTargetCount += count
+        this.targetLabel.getComponent(Label).string = `${this._curTargetCount}/${this._targetTotalCount}`
+        if (this._curTargetCount === this._targetTotalCount && this._progress >= 1) {
+            Constants.gameManager.gameOver(Constants.GAME_OVER_TYPE.WIN)
+        }
     }
 }
 

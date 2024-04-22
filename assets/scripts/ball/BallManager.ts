@@ -44,12 +44,22 @@ export class BallManager extends Component {
             ballList[i] = []
             for(let j = 0; j < col; j++) {
                 const code = list[i * col + j]
+                let skinCode = 1
                 if (code === 0) {
                     ballList[i][j] = null
                     continue
                 }
+                if (code > 0) {
+                    skinCode = code
+                }
                 const pos = Utils.convertToPos(i, j)
                 const ball = Constants.gameManager.ballControl.createBall(this.ballPrefab, v3(pos.x, pos.y, 0), code.toString(), true)
+                if (code < 0) {
+                    const path = Constants.BALL_EXTEND_DIR + code.toString() + '/spriteFrame'
+                    Constants.gameManager.ballControl.setBallSkin(ball.node, '-1', path)
+                    // ball.setTexture(code + '')
+                    ball.setRescueSkin(code + '')
+                }
                 ballList[i][j] = ball
             }
         }
@@ -152,8 +162,11 @@ export class BallManager extends Component {
             case Constants.PROPS_NAME.LIGHTNING:
                 targetList = this.getLightningBallList(row, col)
                 break;
-            case Constants.PROPS_NAME.RAINBOW:
-                targetList = this.getRainbowBallList(row, col)
+            // case Constants.PROPS_NAME.RAINBOW:
+            //     targetList = this.getRainbowBallList(row, col)
+            //     break;
+            case Constants.PROPS_NAME.HAMMER:
+                targetList = this.getHammerBallList(row, col)
                 break;
             default:
                 break;
@@ -187,6 +200,22 @@ export class BallManager extends Component {
                 }
             }
         }
+        return ballList
+    }
+
+    /** 获取锤子范围内的球 */
+    getHammerBallList(row: number, col: number) {
+        const ballList = []
+        const len = this.bubbleBallList[0] ? this.bubbleBallList[0].length : 0
+        for(let i = row - 3; i < row - 1 && i >= 0; i++) {
+            for(let j = 1; j < len - 1; j++) {
+                const ball = this.bubbleBallList[i][j]
+                if (ball) {
+                    ballList.push({ ball, row: i, col: j })
+                }
+            }
+        }
+        
         return ballList
     }
 

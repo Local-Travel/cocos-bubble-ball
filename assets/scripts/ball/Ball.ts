@@ -13,6 +13,8 @@ export class Ball extends Component {
 
     /** 携带技能 */
     public skillType: string = null;
+    /** 解救皮肤 */
+    public rescueSkin: string = null;
 
     start () {
         // setTimeout(()=>{
@@ -81,12 +83,20 @@ export class Ball extends Component {
         this.isMark = mark
     }
 
+    setRescueSkin(skin: string) {
+        this.rescueSkin = skin
+    }
+
     setSleep(sleep: boolean) {
         if (sleep) {
             this.node.getComponent(RigidBody2D).sleep()
         } else {
             this.node.getComponent(RigidBody2D).wakeUp()
         }
+    }
+
+    setTexture(texture: string) {
+        this.texture = texture
     }
 
     setSkillType(skillType: string) {
@@ -123,6 +133,9 @@ export class Ball extends Component {
     playBallExplosion() {
         // 球消失
         tween(this.node).to(0.5, {scale: v3(0, 0, 0)}, { easing: "smooth" }).call(()=>{
+            if (this.rescueSkin) {
+                Constants.gameManager.updateTargetCount(1)
+            }
             this.node.destroy()
         }).start();
     }
@@ -133,6 +146,9 @@ export class Ball extends Component {
         tween(this.node).to(0.4, { 
             position: v3(this.node.position.x, -200, 0) }, { easing: "smooth" }
         ).to(0.3, {scale: v3(0, 0, 0)}, { easing: "smooth" }).call(() => {
+            if (this.rescueSkin) {
+                Constants.gameManager.updateTargetCount(1)
+            }
             this.node.destroy()
         }).start(); 
     }

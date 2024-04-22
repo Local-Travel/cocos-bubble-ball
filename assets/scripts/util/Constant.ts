@@ -7,22 +7,14 @@ import { EndlessGameManager } from "../EndlessGameManager";
 // 球皮肤管理
 const BALL_SKIN = {
   Style1: {
-    /** 路径前缀 */
-    pathDir: 'material/ball/style1/',
-    /** 皮肤前缀 */
-    skin: 'style1_ball',
     /** 皮肤数量 */
     skinCount: 15,
     /** 路径前缀2 */
     spriteDir: 'texture/ball/style1/',
     /** 皮肤名前缀 */
-    namePrefix: 'skin'
+    namePrefix: 'style1_ball_skin'
   },
   Style2: {
-    /** 路径前缀 */
-    pathDir: 'material/ball/style2/',
-    /** 皮肤前缀 */
-    skin: 'style2_ball',
     /** 皮肤数量 */
     skinCount: 6,
     /** 路径前缀2 */
@@ -31,6 +23,9 @@ const BALL_SKIN = {
     namePrefix: 'skin'
   },
 }
+
+// 球内扩展地址
+const BALL_EXTEND_DIR = 'texture/ball-extend/';
 
 // 坐标类型
 enum POSITION_TYPE {
@@ -109,6 +104,9 @@ enum PROPS_NAME {
   /** 彩虹球 */
   RAINBOW = 'rainbow',
 
+  /** 锤子 */
+  HAMMER = 'hammer',
+
   /** 闪电球 */
   LIGHTNING = 'lightning',
 }
@@ -133,6 +131,13 @@ const PROPS_TYPE = {
   rainbow: {
     name: PROPS_NAME.RAINBOW,
     desc: '彩虹泡泡会不受限制消除同一颜色的泡泡',
+    value: 1,
+  },
+
+  /** 锤子 */
+  hammer: {
+    name: PROPS_NAME.HAMMER,
+    desc: '锤子泡泡拥有隔山打牛的功效',
     value: 1,
   },
 
@@ -168,7 +173,7 @@ export class Constants {
 
 
   // ball
-  static BALL_RADIUS = 16; // 球的半径
+  static BALL_RADIUS = 17.5; // 球的半径
   static BALL_ENDLESS_RADIUS = 17.5; // 无尽模式下球的半径
   static BALL_SKIN = BALL_SKIN // 球皮肤
   static POSITION_TYPE = POSITION_TYPE // 坐标类型
@@ -177,6 +182,7 @@ export class Constants {
   static BALL_SHOOT_STATE = BALL_SHOOT_STATE // 球射击状态
   static BALL_MOVE_SPEED = 0.05; // 无尽模式下球移动的速度
   static BALL_COLLISION_DISTANCE = 35 // 球碰撞距离(通常是半径的2倍)
+  static BALL_EXTEND_DIR = BALL_EXTEND_DIR // 球扩展路径
 
   // 射线
   static RAY_LENGTH = 600; // 射线长度

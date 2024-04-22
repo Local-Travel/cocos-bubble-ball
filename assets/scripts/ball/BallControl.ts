@@ -75,23 +75,44 @@ export class BallControl extends Component {
         } 
     }
 
-    setBallMaterial(ball: Node, texture: string) {
-        const ballTextPath = this._ballSkin.pathDir + texture
-        const ballNode = ball ? ball.children[0] : null
-        if (ballNode) {
-            resources.load(ballTextPath, Material, (err, material) => {
-                // console.log('load material', err, material)
-                ballNode.getComponent(MeshRenderer).material = material;
-            });
+    // setBallMaterial(ball: Node, texture: string) {
+    //     const ballTextPath = this._ballSkin.pathDir + texture
+    //     const ballNode = ball ? ball.children[0] : null
+    //     if (ballNode) {
+    //         resources.load(ballTextPath, Material, (err, material) => {
+    //             // console.log('load material', err, material)
+    //             ballNode.getComponent(MeshRenderer).material = material;
+    //         });
+    //     }
+    // }
+
+    getTextureName(texture: string) {
+        return this._ballSkin.namePrefix + texture
+    }
+
+    setBallSkin(ball: Node, texture: string, extendPath: string = '') {
+        const ballTextPath = extendPath || (this._ballSkin.spriteDir + texture + '/spriteFrame')
+        if (ball) {
+            resources.load(ballTextPath, SpriteFrame, (err, spriteFrame) => {
+                // console.log(err, spriteFrame)
+                if (spriteFrame) {
+                    const newNodeName = 'skin'
+                    let spriteNode = ball.getChildByName(newNodeName)
+                    if (spriteNode) {
+                        spriteNode.getComponent(Sprite).spriteFrame = spriteFrame
+                    }
+                }
+            })
         }
     }
 
     createBall(ballPrefab: Prefab, pos: Vec3, ballCode: string, visible: boolean = false) {
         const ball = instantiate(ballPrefab)
-        const texture = this._ballSkin.skin + ballCode
-        this.setBallMaterial(ball, texture)
+        const texture = this.getTextureName(ballCode)
+        this.setBallSkin(ball, texture)
         ball.setParent(this.node)
         ball.setPosition(pos)
+        ball.active = true
         const ballComp = ball.getComponent(Ball)
         ballComp.setBallProp(texture, visible)
         
@@ -102,7 +123,10 @@ export class BallControl extends Component {
         this._remainCreateCount--
         if (this._remainCreateCount < 0) return null
         const pos = this._joyStickPos || v3(0, -156, 0)
-        const code = math.randomRangeInt(1, 3)
+        // const code = math.randomRangeInt(1, 3)
+        let skinCount = Constants.gameManager.levelData.skinCount
+        skinCount = skinCount < 2 ? 2 : skinCount
+        const code = math.randomRangeInt(1, skinCount + 1)
         const ball = this.createBall(this.shootBallPrefab, v3(pos.x, pos.y - Constants.STICK_RADIUS, 0), code.toString(), true)
         return ball
     }
@@ -145,7 +169,7 @@ export class BallControl extends Component {
         switch(skillName) {
             case Constants.PROPS_NAME.BOMB:
             case Constants.PROPS_NAME.LIGHTNING:
-            case Constants.PROPS_NAME.RAINBOW:
+            case Constants.PROPS_NAME.HAMMER:
                 this.addSkillSkinToBall(skillName, this.curBall)
                 this.curBall.setSkillType(skillName)
                 break;
@@ -161,7 +185,7 @@ export class BallControl extends Component {
             console.log(err, spriteFrame)
             if (spriteFrame && ball && ball.node) {
                 // this.musicRoot.getChildByName('icon').getComponent(Sprite).spriteFrame = spriteFrame;
-                const newNodeName = 'skillNode'
+                const newNodeName = 'skin'
                 let spriteNode = ball.node.getChildByName(newNodeName)
                 if (spriteNode) {
                     spriteNode.getComponent(Sprite).spriteFrame = spriteFrame

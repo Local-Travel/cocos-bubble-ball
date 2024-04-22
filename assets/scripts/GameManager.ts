@@ -23,6 +23,7 @@ export class GameManager extends Component {
 
     public ballState: string = null;
     public gameStatus: string = null;
+    public levelData: any = null;
 
     // 剩余球的数量
     private _remainBallCount: number = 0;
@@ -58,9 +59,10 @@ export class GameManager extends Component {
         const userLevel = this.userLevelTest || user.getLevel();
         const ballSkin = user.getBallSkin();
         const { col, list, data } = getLevelData(userLevel);
+        this.levelData = data;
         console.log('userLevel', userLevel)
 
-        this.pageGame.init(data.name, data.bubbleCount, data.score);
+        this.pageGame.init(data.name, data.bubbleCount, data.score, data.targetCount, data.targetIcon.toString());
         this.ballControl.init(data.bubbleCount, col, list, ballSkin);
         this.gameStatus = Constants.GAME_STATE.READY;
         this.ballState = Constants.BALL_SHOOT_STATE.READY;
@@ -113,6 +115,10 @@ export class GameManager extends Component {
             // 游戏继续
             this.ballState = Constants.BALL_SHOOT_STATE.READY;
         }
+    }
+
+    updateTargetCount(count: number) {
+        this.pageGame.updateTargetCount(count);
     }
 
     onEndContact(selfCollider: Collider2D, otherCollider: Collider2D) {
