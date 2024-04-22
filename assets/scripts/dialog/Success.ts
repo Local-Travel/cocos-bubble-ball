@@ -58,7 +58,11 @@ export class Success extends Component {
     }
 
     hideNode() {
-        Constants.gameManager.init()
+        if (Utils.getLocalStorage('scene') == 'GameManager') {
+            Constants.gameManager.init()
+        } else {
+            Constants.endlessGameManager.init()
+        }
         this.node.active = false
     }
 }

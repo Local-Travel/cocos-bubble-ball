@@ -52,6 +52,18 @@ export class EndlessBallManager extends Component {
         const score = Constants.endlessGameManager.curScore
         const skinCount = this.getSkinCountByScore(score)
         const list = this.createBubbleBallList(row, skinCount)
+        if (this.bubbleBallList.length) {
+            for(let i = 0; i < this.bubbleBallList.length; i++) {
+                const obj = this.bubbleBallList[i]
+                for(let j = 0; j < obj.length; j++) {
+                    const ball = obj[j]
+                    if (ball) {
+                        const pos = Utils.convertToPos(i + row, j, Constants.BALL_ENDLESS_RADIUS)
+                        ball.setBallPosition(pos)
+                    }
+                }
+            }
+        }
         this.bubbleBallList.unshift(...list)
         console.log('this.bubbleBallList', this.bubbleBallList)
     }
@@ -126,7 +138,7 @@ export class EndlessBallManager extends Component {
             this.nextShootBall()
             return
         }
-        // const { row, col } = Utils.convertToRowCol(v2(endPos.x, endPos.y))
+        // const { row, col } = Utils.convertToRowCol(v2(endPos.x, endPos.y), Constants.BALL_ENDLESS_RADIUS)
         const target = this.findSameColorAndCollision(shootingBall)
         if (!target) {
             shootingBall.playBallExplosion()
@@ -160,6 +172,7 @@ export class EndlessBallManager extends Component {
                 targetList.forEach(({ ball, row, col }) => {
                     if (ball && ball.node) {
                         Constants.endlessGameManager.endlesssBallControl.setBallSkin(ball.node, shootingBall.texture)
+                        ball.setTexture(shootingBall.texture)
                     }
                 })
                 shootingBall.playBallExplosion()
@@ -214,33 +227,33 @@ export class EndlessBallManager extends Component {
             this.nextShootBall()
             return
         }
-        const target = this.findSameColorAndCollision(shootingBall)
-        if (!target) {// 顶部要特殊处理
-            if (endPos.y >= Constants.SCREEN_TOP_Y - Constants.BALL_ENDLESS_RADIUS) {
-                // 顶部
-                const { row, col } = Utils.convertToRowCol(v2(endPos.x, endPos.y), Constants.BALL_ENDLESS_RADIUS)
-                let c = -1
-                if (!this.bubbleBallList[row][col]) {
-                    c = col
-                } else if (!this.bubbleBallList[row][col - 1]) {
-                    c = col - 1
-                } else if (!this.bubbleBallList[row][col + 1]) {
-                    c = col + 1
-                }
-                if (c > -1) {
-                    this.bubbleBallList[row][c] = shootingBall
-                    const pos = Utils.convertToPos(row, c, Constants.BALL_ENDLESS_RADIUS)
-                    shootingBall.setBallPosition(pos)
-                    this.nextShootBall()
-                    return
-                }
-            }
-            shootingBall.playBallExplosion()
-            this.nextShootBall()
-            return
-        }
-        // const { row, col } = Utils.convertToRowCol(v2(endPos.x, endPos.y))
-        const { row, col, ball: targetBall } = target
+        // const target = this.findSameColorAndCollision(shootingBall)
+        // if (!target) {// 顶部要特殊处理
+        //     if (endPos.y >= Constants.SCREEN_TOP_Y - Constants.BALL_ENDLESS_RADIUS) {
+        //         // 顶部
+        //         const { row, col } = Utils.convertToRowCol(v2(endPos.x, endPos.y), Constants.BALL_ENDLESS_RADIUS)
+        //         let c = -1
+        //         if (!this.bubbleBallList[row][col]) {
+        //             c = col
+        //         } else if (!this.bubbleBallList[row][col - 1]) {
+        //             c = col - 1
+        //         } else if (!this.bubbleBallList[row][col + 1]) {
+        //             c = col + 1
+        //         }
+        //         if (c > -1) {
+        //             this.bubbleBallList[row][c] = shootingBall
+        //             const pos = Utils.convertToPos(row, c, Constants.BALL_ENDLESS_RADIUS)
+        //             shootingBall.setBallPosition(pos)
+        //             this.nextShootBall()
+        //             return
+        //         }
+        //     }
+        //     shootingBall.playBallExplosion()
+        //     this.nextShootBall()
+        //     return
+        // }
+        const { row, col } = Utils.convertToRowCol(v2(endPos.x, endPos.y), Constants.BALL_ENDLESS_RADIUS)
+        // const { row, col, ball: targetBall } = target
         console.log('endPos', row, col)
         const texture = shootingBall.texture
 
@@ -262,65 +275,62 @@ export class EndlessBallManager extends Component {
 
             this.nextShootBall(bombCount, hangCount)
         } else {
-            // shootingBall.playBallExplosion()
-            // this.nextShootBall()
-            let x = -1, y = -1
-            for (let i = 0; i < 1; i++) {
-                const pos = targetBall.node.position
-                // let newPos = v2(pos.x, pos.y)
-                // const r = Constants.BALL_ENDLESS_RADIUS
-                const leftTop = row % 2 === 1 ? col : col - 1
-                // 左下
-                if (!this.checkBallNotNull(row + 1, leftTop)) {
-                    x = row + 1
-                    y = leftTop
-                    break
-                }
-                // 右下
-                if (!this.checkBallNotNull(row + 1, leftTop + 1)) {
-                    x = row + 1
-                    y = leftTop + 1
-                    break
-                }
+            this.becomeBubbleBall(shootingBall, row, col)
+        }
+    }
 
+    /** 射击球成为气泡球 */
+    becomeBubbleBall(ball: EndlessBall, row: number, col: number) {
+        const newPos = Utils.convertToPos(row, col, Constants.BALL_ENDLESS_RADIUS)
+        ball.setBallPosition(newPos)
+        let isBubble = false
+        const len = this.bubbleBallList.length
+        if (!this.bubbleBallList[row] && row <= len) {
+            this.bubbleBallList[row] = []
+            for(let j = 0; j < this.bubbleBallList[0].length; j++) {
+                this.bubbleBallList[row][j] = null
+            }
+        }
+        if (this.bubbleBallList[row] && !this.bubbleBallList[row][col]) {
+            let isLinked = false
+            if (row !== 0) {
+                // 处理悬空的球
+                const leftTop = row % 2 === 1 ? col : col - 1
+                // 左上
+                if (this.checkBallNotNull(row - 1, leftTop)) {
+                    isLinked = true
+                }            
+                // 右上
+                if (this.checkBallNotNull(row - 1, leftTop + 1)) {
+                    isLinked = true
+                }
                 // 左
-                if (!this.checkBallNotNull(row, col - 1)) {
-                    x = row
-                    y = col - 1
-                    break
+                if (this.checkBallNotNull(row, col - 1)) {
+                    isLinked = true
                 }
                 // 右
-                if (!this.checkBallNotNull(row, col + 1)) {
-                    x = row
-                    y = col + 1
-                    break
+                if (this.checkBallNotNull(row, col + 1)) {
+                    isLinked = true
                 }
-                // 左上
-                if (!this.checkBallNotNull(row - 1, leftTop)) {
-                    x = row - 1
-                    y = leftTop
-                    break
+                // 左下
+                if (this.checkBallNotNull(row + 1, leftTop)) {
+                    isLinked = true
                 }
-                // 右上
-                if (!this.checkBallNotNull(row - 1, leftTop + 1)) {
-                    x = row - 1
-                    y = leftTop + 1
-                    break
+                // 右下
+                if (this.checkBallNotNull(row + 1, leftTop + 1)) {
+                    isLinked = true
                 }
             }
-            if (x > -1 && y > -1) {
-                if (!this.bubbleBallList[x]) {
-                    this.bubbleBallList[x] = []
-                }
-                this.bubbleBallList[x][y] = shootingBall
-                const pos = Utils.convertToPos(x, y, Constants.BALL_ENDLESS_RADIUS)
-                shootingBall.setBallPosition(pos)
-            } else {
-                shootingBall.playBallExplosion()
+            if (isLinked || row === 0) {
+                this.bubbleBallList[row][col] = ball
+                isBubble = true
             }
-
-            this.nextShootBall()
         }
+        if (!isBubble) {
+            ball.playBallExplosion()
+        }
+        
+        this.nextShootBall()
     }
 
     nextShootBall(bombCount: number = 0, dropCount: number = 0) {
@@ -345,6 +355,9 @@ export class EndlessBallManager extends Component {
                     break
                 }
             }
+        }
+        if (this.bubbleBallList.length <= 3) {
+            this.createBatchBall(6)
         }
         Constants.endlessGameManager.calcScore(bombCount, dropCount)
     }

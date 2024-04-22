@@ -83,13 +83,13 @@ export class PageEndlessGame extends Component {
             Constants.dialogManager.showTipLabel('道具不足，分享可免费获得该技能')
             return
         }
-        Constants.gameManager.grantSkillToShootBall(skillName)
+        Constants.endlessGameManager.grantSkillToShootBall(skillName)
     }
 
     reduceLifeValue(lifeVal: number) {
         this._curLifeVal -= lifeVal
         if (this._curLifeVal <= 0) {
-            Constants.gameManager.gameOver(Constants.GAME_OVER_TYPE.LOSE)
+            Constants.endlessGameManager.gameOver(Constants.GAME_OVER_TYPE.LOSE)
         }
         this.updateProgress(this._curLifeVal, this._totalLifeVal)
     }

@@ -4,6 +4,7 @@ import { PageEndlessGame } from './page/PageEndlessGame';
 import { Constants } from './util/Constant';
 import { User } from './data/User';
 import { getLevelData } from './data/LevelData';
+import { Utils } from './util/Utils';
 const { ccclass, property } = _decorator;
 
 @ccclass('EndlessGameManager')
@@ -26,7 +27,7 @@ export class EndlessGameManager extends Component {
     }
 
     start() {
-        localStorage.setItem('scene', 'EndlessGameManager')
+        Utils.setLocalStorage('scene', 'EndlessGameManager')
         this.init();
     }
 

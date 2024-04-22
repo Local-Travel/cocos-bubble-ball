@@ -26,10 +26,9 @@ export class EndlessBall extends Component {
         // this.node.setPosition(pos.x, pos.y - Constants.BALL_MOVE_SPEED, pos.z)
 
         // pos = this.node.position
-        // if (pos.z < Constants.SCREEN_BOTTOM_Y) {
-        //     PoolManager.instance().putNode(this.node)
+        // if (pos.y < Constants.SCREEN_BOTTOM_Y) {
         //     // 减少生命值
-        //     Constants.endlessGameManager.reduceLifeValue(1)
+        //     // Constants.endlessGameManager.reduceLifeValue(1)
         // }
     }
 
@@ -68,6 +67,10 @@ export class EndlessBall extends Component {
 
     setVisible(visible: boolean) {
         this.node.active = visible
+    }
+
+    setTexture(texture: string) {
+        this.texture = texture
     }
 
     setIsShootBall(isShootBall: boolean) {

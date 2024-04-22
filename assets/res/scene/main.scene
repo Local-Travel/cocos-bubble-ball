@@ -1066,7 +1066,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 187.5,
-      "y": 333.49999999999994,
+      "y": 333.5,
       "z": 0
     },
     "_lrot": {
@@ -1151,7 +1151,7 @@
     "_priority": 1073741824,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 333.49999999999994,
+    "_orthoHeight": 333.5,
     "_near": 1,
     "_far": 2000,
     "_color": {
@@ -1247,7 +1247,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 375,
-      "height": 666.9999999999999
+      "height": 667
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1392,7 +1392,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 5,
-      "height": 333.49999999999994
+      "height": 333.5
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1554,7 +1554,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 5,
-      "height": 333.49999999999994
+      "height": 333.5
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1677,7 +1677,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 262.31999999999994,
+      "y": 262.32,
       "z": 0
     },
     "_lrot": {
@@ -5767,8 +5767,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 31.129238954991187,
-      "height": 25.2
+      "width": 31.131280517578123,
+      "height": 25.200000000000003
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -5800,7 +5800,7 @@
     "_string": "2000",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 14.146926536731636,
+    "_actualFontSize": 21.619190404797603,
     "_fontSize": 14,
     "_fontFamily": "Arial",
     "_lineHeight": 20,
@@ -6543,8 +6543,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 28.32592587796446,
-      "height": 17.64
+      "width": 28.335628753958396,
+      "height": 17.639999999999997
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -6576,7 +6576,7 @@
     "_string": "关卡 1",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 10.104947526236883,
+    "_actualFontSize": 15.442278860569715,
     "_fontSize": 10,
     "_fontFamily": "Arial",
     "_lineHeight": 14,
@@ -6675,8 +6675,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 20.01166224267433,
-      "height": 25.200000000000006
+      "width": 20.017070970257507,
+      "height": 25.200000000000003
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -6708,7 +6708,7 @@
     "_string": "10",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 18.18890554722639,
+    "_actualFontSize": 27.796101949025488,
     "_fontSize": 18,
     "_fontFamily": "Arial",
     "_lineHeight": 20,
@@ -15516,7 +15516,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 375,
-      "height": 666.9999999999999
+      "height": 667
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -15606,7 +15606,7 @@
         "__id__": 474
       }
     ],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 476

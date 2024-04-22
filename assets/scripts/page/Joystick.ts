@@ -64,7 +64,7 @@ export class Joystick extends Component {
   }
 
   start() {
-    this._scene = localStorage.getItem('scene')
+    this._scene = Utils.getLocalStorage('scene')
     // director.on(Constants.EVENT_TYPE.NEXT_SHOOT_BALL, this.listenCreateShootBall, this)
     director.emit(Constants.EVENT_TYPE.STICK_REGISTER_SUCCESS, this.node.position)
   }
