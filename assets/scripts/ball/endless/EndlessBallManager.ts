@@ -45,7 +45,7 @@ export class EndlessBallManager extends Component {
         this._ballSkin = Constants.BALL_SKIN[ballSkin] || {}
         // 注意：要生成偶数行，Utils.convertToPos从0行开始算的
         this.clearBubbleBallList()
-        this.createBatchBall(6)
+        this.createBatchBall(10)
     }
 
     createBatchBall(row: number) {
@@ -356,8 +356,12 @@ export class EndlessBallManager extends Component {
                 }
             }
         }
-        if (this.bubbleBallList.length <= 3) {
-            this.createBatchBall(6)
+        if (this.bubbleBallList.length <= 7) {
+            this.createBatchBall(2)
+        } else if (this.bubbleBallList.length <= 5) {
+            this.createBatchBall(4)
+        } else if (this.bubbleBallList.length <= 3) {
+            this.createBatchBall(7)
         }
         Constants.endlessGameManager.calcScore(bombCount, dropCount)
     }
