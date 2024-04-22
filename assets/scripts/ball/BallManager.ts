@@ -13,8 +13,8 @@ export class BallManager extends Component {
 
     @property(PageGame)
     pageGame: PageGame = null
-    @property(BallControl)
-    ballControl: BallControl = null
+    // @property(BallControl)
+    // ballControl: BallControl = null
 
     bubbleBallList: (Ball|null)[][] = []
 
@@ -49,7 +49,7 @@ export class BallManager extends Component {
                     continue
                 }
                 const pos = Utils.convertToPos(i, j)
-                const ball = this.ballControl.createBall(this.ballPrefab, v3(pos.x, pos.y, 0), code.toString(), true)
+                const ball = Constants.gameManager.ballControl.createBall(this.ballPrefab, v3(pos.x, pos.y, 0), code.toString(), true)
                 ballList[i][j] = ball
             }
         }
@@ -320,7 +320,6 @@ export class BallManager extends Component {
     becomeBubbleBall(ball: Ball, row: number, col: number) {
         // const pos = ball.getBallPosition()
         // console.log('shooting pos', pos)
-        // const { row, col } = Utils.convertToRowCol(v2(pos.x, pos.y))
         const newPos = Utils.convertToPos(row, col)
         ball.setBallPosition(newPos)
         let isBubble = false

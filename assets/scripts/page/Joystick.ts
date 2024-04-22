@@ -33,9 +33,6 @@ export class Joystick extends Component {
   @property
   maxR: number = 0;
 
-  @property(BallManager)
-  ballManager: BallManager = null;
-
   public direction: Vec2 = new Vec2(0, 0);
   public ballPosList: Vec2[] = [];
 
@@ -44,6 +41,7 @@ export class Joystick extends Component {
 
   // 2dRay
   private _cur_len: number = 0;
+  private _scene: string = 'GameManager';
 
   onLoad() {
     PhysicsSystem2D.instance.enable = true;
@@ -66,6 +64,7 @@ export class Joystick extends Component {
   }
 
   start() {
+    this._scene = localStorage.getItem('scene')
     // director.on(Constants.EVENT_TYPE.NEXT_SHOOT_BALL, this.listenCreateShootBall, this)
     director.emit(Constants.EVENT_TYPE.STICK_REGISTER_SUCCESS, this.node.position)
   }
@@ -87,8 +86,6 @@ export class Joystick extends Component {
   }
 
   onTouchMove(event: EventTouch) {
-    // if (Constants.gameManager.ballState !== Constants.BALL_SHOOT_STATE.READY) return
-
     this.clearLine();
     this._cur_len = 0;
     this.ballPosList = [];
@@ -125,7 +122,11 @@ export class Joystick extends Component {
 
   onTouchEnd(event: EventTouch) {
     // 处理触摸结束事件
-    Constants.gameManager.shootBallAction(this.ballPosList);
+    if (this._scene === 'GameManager') {
+      Constants.gameManager.shootBallAction(this.ballPosList);
+    } else {
+      Constants.endlessGameManager.shootBallAction(this.ballPosList);
+    }
     this.direction.x = this.direction.y = 0;
     this.stick.setPosition(0, 0);
     this.clearLine();
@@ -168,13 +169,13 @@ export class Joystick extends Component {
       const hitPoint = point.clone();
       // 照射的节点
       const name = collider.node.name;
-      console.log('collider.node.name', name)
+      // console.log('collider.node.name', name)
       if (name === 'stick') {
         return;
       }
       // 画射线
       this.drawTraceByRayCast2D(startPos, point);
-      if (name === 'ball' || name === 'shootBall' || name === 'wall-top') {
+      if (name === 'ball' || name === 'shootBall' || name === 'endlessBall' || name === 'wall-top') {
         return;
       }
       // 当前长度

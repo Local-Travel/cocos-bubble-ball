@@ -34,6 +34,7 @@ export class GameManager extends Component {
     }
 
     start() {
+        localStorage.setItem('scene', 'GameManager')
         // 注册全局碰撞回调函数
         if (PhysicsSystem2D.instance) {
             PhysicsSystem2D.instance.on(Contact2DType.BEGIN_CONTACT, this.onEndContact, this);

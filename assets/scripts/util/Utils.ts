@@ -33,10 +33,10 @@ export class Utils {
      * @param row 
      * @param col 
      */
-    static convertToPos(row: number, col: number): Vec2 {
+    static convertToPos(row: number, col: number, r: number = Constants.BALL_RADIUS): Vec2 {
         // 奇数行特殊处理
-        const x = -Constants.SCREEN_TOP_X + col * Constants.BALL_RADIUS * 2 + Constants.BALL_RADIUS * (row % 2 + 1);
-        const y = Constants.SCREEN_TOP_Y - (Constants.BALL_RADIUS + row * Constants.BALL_RADIUS * Math.sqrt(3));
+        const x = -Constants.SCREEN_TOP_X + col * r * 2 + r * (row % 2 + 1);
+        const y = Constants.SCREEN_TOP_Y - (r + row * r * Math.sqrt(3));
         return new Vec2(x, y);
     }
 
@@ -44,9 +44,9 @@ export class Utils {
      * 根据位置转换为行列
      * @param pos 
      */
-    static convertToRowCol(pos: Vec2): { row: number, col: number } {
-        const row = Math.round(Math.abs(Constants.SCREEN_TOP_Y - pos.y - Constants.BALL_RADIUS) / (Constants.BALL_RADIUS * Math.sqrt(3)));
-        const col = Math.round(Math.abs(pos.x + Constants.SCREEN_TOP_X - Constants.BALL_RADIUS * (row % 2 + 1)) / (Constants.BALL_RADIUS * 2));
+    static convertToRowCol(pos: Vec2, r: number = Constants.BALL_RADIUS): { row: number, col: number } {
+        const row = Math.round(Math.abs(Constants.SCREEN_TOP_Y - pos.y - r) / (r * Math.sqrt(3)));
+        const col = Math.round(Math.abs(pos.x + Constants.SCREEN_TOP_X - r * (row % 2 + 1)) / (r * 2));
         return { row, col };
     }
   

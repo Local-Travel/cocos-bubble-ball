@@ -2,6 +2,7 @@ import { _decorator, Vec3 } from "cc";
 import { GameManager } from "../GameManager";
 import { DialogManager } from "../dialog/DialogManager";
 import { AudioManager } from "../audio/AudioManager";
+import { EndlessGameManager } from "../EndlessGameManager";
 
 // 球皮肤管理
 const BALL_SKIN = {
@@ -9,13 +10,25 @@ const BALL_SKIN = {
     /** 路径前缀 */
     pathDir: 'material/ball/style1/',
     /** 皮肤前缀 */
-    skin: 'style1_ball'
+    skin: 'style1_ball',
+    /** 皮肤数量 */
+    skinCount: 15,
+    /** 路径前缀2 */
+    spriteDir: 'texture/ball/style1/',
+    /** 皮肤名前缀 */
+    namePrefix: 'skin'
   },
   Style2: {
     /** 路径前缀 */
     pathDir: 'material/ball/style2/',
     /** 皮肤前缀 */
-    skin: 'style2_ball'
+    skin: 'style2_ball',
+    /** 皮肤数量 */
+    skinCount: 6,
+    /** 路径前缀2 */
+    spriteDir: 'texture/ball/style2/',
+    /** 皮肤名前缀 */
+    namePrefix: 'skin'
   },
 }
 
@@ -90,6 +103,9 @@ enum PROPS_NAME {
   /** 炸弹球 */
   BOMB = 'bomb',
 
+  /** 染色球 */
+  COLOR = 'color',
+
   /** 彩虹球 */
   RAINBOW = 'rainbow',
 
@@ -103,6 +119,13 @@ const PROPS_TYPE = {
   bomb: {
     name: PROPS_NAME.BOMB,
     desc: '炸弹泡泡可以消除方圆内的泡泡',
+    value: 1,
+  },
+
+  /** 染色球 */
+  color: {
+    name: PROPS_NAME.COLOR,
+    desc: '染色泡泡会将前3行的泡泡染上相同颜色',
     value: 1,
   },
 
@@ -122,6 +145,7 @@ const PROPS_TYPE = {
 }
 
 export class Constants {
+  static endlessGameManager: EndlessGameManager;
   static gameManager: GameManager;
   static dialogManager: DialogManager;
   static audioManager: AudioManager;
@@ -130,23 +154,29 @@ export class Constants {
   static HEADER_HEIGHT = 70; // 头部高度
   static SCREEN_TOP_X = 375 / 2; // 屏幕左上角X位置
   static SCREEN_TOP_Y = 667 / 2 - this.HEADER_HEIGHT; // 屏幕左上角Y位置
+  static SCREEN_BOTTOM_Y = -160; // 底部隐藏的高度
 
   // game
   static GAME_STATE = GAME_STATE; // 游戏状态
   static GAME_OVER_TYPE = GAME_OVER_TYPE; // 游戏终止类型
-  static DROP_BALL_SCORE = 10; // 掉落泡泡的分数
-  static BOMB_BALL_SCORE = 15; // 炸弹泡泡的分数
+  static DROP_BALL_SCORE = 15; // 掉落泡泡的分数
+  static BOMB_BALL_SCORE = 10; // 炸弹泡泡的分数
 
   // stick
   static STICK_RADIUS = 40; // 球杆半径
+  static STICK_RADIUS2 = 30; // 球杆半径
+
 
   // ball
   static BALL_RADIUS = 16; // 球的半径
-  static BALL_SKIN = BALL_SKIN // 球运动类型
+  static BALL_ENDLESS_RADIUS = 17.5; // 无尽模式下球的半径
+  static BALL_SKIN = BALL_SKIN // 球皮肤
   static POSITION_TYPE = POSITION_TYPE // 坐标类型
   static BALL_TYPE = BALL_TYPE // 球类型
   static BALL_REMOVE_COUNT = 3;// 可消除球的数量
   static BALL_SHOOT_STATE = BALL_SHOOT_STATE // 球射击状态
+  static BALL_MOVE_SPEED = 0.05; // 无尽模式下球移动的速度
+  static BALL_COLLISION_DISTANCE = 35 // 球碰撞距离(通常是半径的2倍)
 
   // 射线
   static RAY_LENGTH = 600; // 射线长度
