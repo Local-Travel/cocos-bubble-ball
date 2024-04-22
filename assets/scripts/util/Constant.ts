@@ -156,9 +156,9 @@ export class Constants {
   static audioManager: AudioManager;
 
   // screen
-  static HEADER_HEIGHT = 70; // 头部高度
+  static HEADER_HEIGHT = 50; // 头部高度
   static SCREEN_TOP_X = 375 / 2; // 屏幕左上角X位置
-  static SCREEN_TOP_Y = 667 / 2; // 屏幕左上角Y位置
+  static SCREEN_TOP_Y = 667 / 2 - this.HEADER_HEIGHT; // 屏幕左上角Y位置
   static SCREEN_BOTTOM_Y = -160; // 底部隐藏的高度
 
   // game

@@ -356,12 +356,9 @@ export class EndlessBallManager extends Component {
                 }
             }
         }
-        if (this.bubbleBallList.length <= 7) {
-            this.createBatchBall(2)
-        } else if (this.bubbleBallList.length <= 5) {
-            this.createBatchBall(4)
-        } else if (this.bubbleBallList.length <= 3) {
-            this.createBatchBall(7)
+        if (this.bubbleBallList.length <= 3) {
+            this.createBatchBall(10)
+            this.pageEndlessGame.resetLifeValue()
         }
         Constants.endlessGameManager.calcScore(bombCount, dropCount)
     }

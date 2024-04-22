@@ -1674,7 +1674,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 0,
-      "y": 331.535,
+      "y": 282.558,
       "z": 0
     },
     "_lrot": {
@@ -1792,7 +1792,7 @@
     "_target": null,
     "_left": 0,
     "_right": 0,
-    "_top": -0.535000000000025,
+    "_top": 48.44200000000001,
     "_bottom": 0,
     "_horizontalCenter": 0,
     "_verticalCenter": 0,
@@ -5558,7 +5558,7 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 31.131280517578123,
+      "width": 31.140225923978363,
       "height": 25.200000000000003
     },
     "_anchorPoint": {
@@ -5591,7 +5591,7 @@
     "_string": "2000",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 21.619190404797603,
+    "_actualFontSize": 25.10344827586207,
     "_fontSize": 14,
     "_fontFamily": "Arial",
     "_lineHeight": 20,
@@ -6893,8 +6893,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 20.017070970257507,
-      "height": 25.200000000000003
+      "width": 20.017831655649037,
+      "height": 25.2
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -6926,7 +6926,7 @@
     "_string": "10",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 27.796101949025488,
+    "_actualFontSize": 32.275862068965516,
     "_fontSize": 18,
     "_fontFamily": "Arial",
     "_lineHeight": 20,
@@ -15868,7 +15868,7 @@
     "pageGame": {
       "__id__": 136
     },
-    "userLevelTest": 0,
+    "userLevelTest": 7,
     "_id": "83Mgua5fpN94CYTAGathNN"
   },
   {

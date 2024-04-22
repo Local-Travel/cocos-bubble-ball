@@ -49,6 +49,10 @@ export class BallManager extends Component {
                     ballList[i][j] = null
                     continue
                 }
+                if (code === -5) {
+                    //TODO: 空气气泡，无任何材质
+                    // 不属于球
+                }
                 if (code > 0) {
                     skinCode = code
                 }
@@ -56,9 +60,9 @@ export class BallManager extends Component {
                 const ball = Constants.gameManager.ballControl.createBall(this.ballPrefab, v3(pos.x, pos.y, 0), code.toString(), true)
                 if (code < 0) {
                     const path = Constants.BALL_EXTEND_DIR + code.toString() + '/spriteFrame'
-                    Constants.gameManager.ballControl.setBallSkin(ball.node, '-1', path)
+                    Constants.gameManager.ballControl.setBallSkin(ball.node, code.toString(), path)
+                    ball.setRescueSkin(code.toString())
                     // ball.setTexture(code + '')
-                    ball.setRescueSkin(code + '')
                 }
                 ballList[i][j] = ball
             }

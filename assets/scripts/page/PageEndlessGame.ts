@@ -24,8 +24,9 @@ export class PageEndlessGame extends Component {
     btnColorRoot: Node = null
 
     // 当前生命值
-    private _curLifeVal: number = 0
-    private _totalLifeVal: number = 0
+    private _curLifeVal: number = 10
+    private _totalLifeVal: number = 10
+    private _val: number = 0
     
     protected onEnable(): void {
         this.settingRoot.on(Node.EventType.TOUCH_END, this.onClickSetting, this)
@@ -44,7 +45,18 @@ export class PageEndlessGame extends Component {
     }
 
     update(deltaTime: number) {
-        
+        // console.log('update', deltaTime)
+        this._val += deltaTime * 0.05
+
+        if (this._val > 0.05) {
+            this._curLifeVal -= this._val
+            this._val = 0
+            this.updateProgress(this._curLifeVal, this._totalLifeVal)
+        }
+        if (this._curLifeVal <= 0) {
+            Constants.endlessGameManager.gameOver(Constants.GAME_OVER_TYPE.LOSE)
+            return
+        }
     }
 
     /**
@@ -54,6 +66,7 @@ export class PageEndlessGame extends Component {
      * @param totalScore 总分
      */
     init() {
+        this._val = 0
         this._curLifeVal = 10
         this._totalLifeVal = 10
         this.updateScore(0)
@@ -84,6 +97,12 @@ export class PageEndlessGame extends Component {
             return
         }
         Constants.endlessGameManager.grantSkillToShootBall(skillName)
+    }
+
+    resetLifeValue() {
+        this._curLifeVal = 10
+        this._totalLifeVal = 10
+        this.updateProgress(this._curLifeVal, this._totalLifeVal)
     }
 
     reduceLifeValue(lifeVal: number) {
