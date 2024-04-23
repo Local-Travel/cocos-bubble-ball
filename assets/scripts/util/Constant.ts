@@ -1,4 +1,4 @@
-import { _decorator, Vec3 } from "cc";
+import { _decorator, sys, Vec3 } from "cc";
 import { GameManager } from "../GameManager";
 import { DialogManager } from "../dialog/DialogManager";
 import { AudioManager } from "../audio/AudioManager";
@@ -156,9 +156,11 @@ export class Constants {
   static audioManager: AudioManager;
 
   // screen
+  static SCREEN_WIDTH = 375; // 屏幕宽度
+  static SCREEN_HEIGHT = 667; // 屏幕高度
   static HEADER_HEIGHT = 50; // 头部高度
-  static SCREEN_TOP_X = 375 / 2; // 屏幕左上角X位置
-  static SCREEN_TOP_Y = 667 / 2 - this.HEADER_HEIGHT; // 屏幕左上角Y位置
+  static SCREEN_TOP_X = this.SCREEN_WIDTH / 2; // 屏幕左上角X位置
+  static SCREEN_TOP_Y = this.SCREEN_HEIGHT / 2 - this.HEADER_HEIGHT; // 屏幕左上角Y位置
   static SCREEN_BOTTOM_Y = -160; // 底部隐藏的高度
 
   // game
