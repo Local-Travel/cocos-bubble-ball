@@ -1,28 +1,32 @@
-import { _decorator, Component, Label, Node } from 'cc';
-import { User } from '../data/User';
+import { _decorator, Component, director, Label, Node } from 'cc';
 import { Utils } from '../util/Utils';
-import { Constants } from '../util/Constant';
 const { ccclass, property } = _decorator;
 
-@ccclass('Fail')
-export class Fail extends Component {
+@ccclass('TryOtherMode')
+export class TryOtherMode extends Component {
     @property(Node)
-    prizeRoot: Node = null
+    receiveRoot: Node = null
 
     @property(Node)
     giveUpRoot: Node = null
+
+    @property(Node)
+    modeRoot: Node = null
 
     start() {
 
     }
 
     protected onEnable(): void {
-        this.prizeRoot.on(Node.EventType.TOUCH_END, this.onReceive, this)
+        director.preloadScene("endless", function () {
+            // log("Next scene preloaded");
+        });
+        this.receiveRoot.on(Node.EventType.TOUCH_END, this.onReceive, this)
         this.giveUpRoot.on(Node.EventType.TOUCH_END, this.onGiveUp, this)
     }
 
     protected onDisable(): void {
-        this.prizeRoot.off(Node.EventType.TOUCH_END, this.onReceive, this)
+        this.receiveRoot.off(Node.EventType.TOUCH_END, this.onReceive, this)
         this.giveUpRoot.off(Node.EventType.TOUCH_END, this.onGiveUp, this)
     }
 
@@ -36,12 +40,11 @@ export class Fail extends Component {
 
     onReceive() {
         // 调用分享接口
-        Utils.activeShare('failBox')
-        // 炸弹道具
-        const propsName = Constants.PROPS_NAME.BOMB
-        const user = User.instance()
-        const count = user.getGameProps(propsName)
-        user.setGameProps(propsName, count + 1)
+        if (Utils.getLocalStorage('scene') == 'GameManager') {
+            director.loadScene("endless")
+        } else {
+            director.loadScene("main")
+        }
         this.hideNode()
     }
 
@@ -50,7 +53,6 @@ export class Fail extends Component {
     }
 
     hideNode() {
-        Constants.gameManager.init()
         this.node.active = false
     }
 }

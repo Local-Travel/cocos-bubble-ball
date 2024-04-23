@@ -211,7 +211,9 @@ export class BallManager extends Component {
     getHammerBallList(row: number, col: number) {
         const ballList = []
         const len = this.bubbleBallList[0] ? this.bubbleBallList[0].length : 0
-        for(let i = row - 3; i < row - 1 && i >= 0; i++) {
+        let count = 2
+        for(let i = row - 1; i >= 0 && count > 0; i--) {
+            count--
             for(let j = 1; j < len - 1; j++) {
                 const ball = this.bubbleBallList[i][j]
                 if (ball) {
@@ -487,7 +489,7 @@ export class BallManager extends Component {
             }
         }
         // 如果末端的长度数据
-        Constants.gameManager.checkBubbleListLength(this.bubbleBallList.length)
+        Constants.gameManager.checkGameStatus(this.bubbleBallList.length)
     }
 
     clearBubbleBallList() {

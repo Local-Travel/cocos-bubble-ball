@@ -27,7 +27,7 @@ export function getLevelData(level: number) {
     },
     {
       level: 0,
-      score: 900,
+      score: 850,
       bubbleCount: 15,
       skinCount: 4,
       targetCount: 4,
@@ -48,14 +48,14 @@ export function getLevelData(level: number) {
     },
     {
       level: 0,
-      score: 1000,
+      score: 730,
       bubbleCount: 5,
       skinCount: 4,
       targetCount: 1,
       targetIcon: -2,
-      maxLen: 12,
+      maxLen: 11,
       name: '关卡 3',
-      desc: '',
+      desc: '挑战难度提升了哟，通关有神秘宝箱',
       list: [
         0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 
         0, 0, 3, 4, 4, 4, 3, 0, 0, 0,

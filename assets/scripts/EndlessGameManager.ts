@@ -39,16 +39,20 @@ export class EndlessGameManager extends Component {
         
     }
 
-    init() {
+    init(resetScore: boolean = true) {
         // const user = User.instance();
         // const ballSkin = user.getBallSkin();
         const ballSkin = 'Style2';
+        if (resetScore) {
+            // 重置分数
+            this.curScore = 0;
+        }
 
         this.pageEndlessGame.init();
         this.endlesssBallControl.init(ballSkin);
         this.gameStatus = Constants.GAME_STATE.READY;
         this.ballState = Constants.BALL_SHOOT_STATE.READY;
-        this.curScore = 0;
+        
     }
 
     shootBallAction(posList: Vec2[]) {

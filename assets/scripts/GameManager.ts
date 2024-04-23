@@ -30,6 +30,8 @@ export class GameManager extends Component {
     // 最大的球列表长度
     private _bubbleListMaxLen: number = 0;
 
+    private _userLevel: number = 1;
+
     protected __preload(): void {
         Constants.gameManager = this;
     }
@@ -61,6 +63,9 @@ export class GameManager extends Component {
         const { col, list, data } = getLevelData(userLevel);
         this.levelData = data;
         console.log('userLevel', userLevel)
+        this._userLevel = userLevel;
+
+        Constants.dialogManager.showLevelTip(userLevel)
 
         this.pageGame.init(data.name, data.bubbleCount, data.score, data.targetCount, data.targetIcon.toString());
         this.ballControl.init(data.bubbleCount, col, list, ballSkin);
@@ -68,19 +73,21 @@ export class GameManager extends Component {
         this.ballState = Constants.BALL_SHOOT_STATE.READY;
         this._remainBallCount = data.bubbleCount;
         this._bubbleListMaxLen = data.maxLen;
+        if (data.desc) {
+            Constants.dialogManager.showTipLabel(data.desc)
+        }
     }
 
     shootBallAction(posList: Vec2[]) {
         if (this.gameStatus !== Constants.GAME_STATE.READY) return
-        if (this.ballState === Constants.BALL_SHOOT_STATE.READY && posList.length) {
+        if (this.ballState === Constants.BALL_SHOOT_STATE.READY 
+            && posList.length
+            && this._remainBallCount > 0) {
             this.ballState = Constants.BALL_SHOOT_STATE.SHOOTING;
             this.ballControl.shootBallAction(posList, () => {
                 // 成功发射球
                 this._remainBallCount--
                 this.pageGame.updateShootBallCount(this._remainBallCount)
-                if (this._remainBallCount <= 0) {
-                    this.gameOver(Constants.GAME_OVER_TYPE.LOSE);
-                }
             });
         }
     }
@@ -101,20 +108,28 @@ export class GameManager extends Component {
             default:
                 console.log('game pass')
                 Constants.dialogManager.showSuccess()
+                if (this.levelData.desc) {
+                    Constants.dialogManager.showChest()
+                } else if (this._userLevel % 5 === 0) {
+                    Constants.dialogManager.showOtherMode()
+                }
                 // 游戏通关
                 break;
         }
         this.gameStatus = Constants.GAME_STATE.OVER;
     }
 
-    // 检查球列表是否超长
-    checkBubbleListLength(len: number) {
-        if (len >= this._bubbleListMaxLen) {
-            this.gameOver(Constants.GAME_OVER_TYPE.LOSE);
-        } else {
-            // 游戏继续
-            this.ballState = Constants.BALL_SHOOT_STATE.READY;
+    // 检查游戏状态
+    checkGameStatus(len: number) {
+        if (this.gameStatus === Constants.GAME_STATE.OVER) return;
+        if (len >= this._bubbleListMaxLen) {// 气泡球满屏，长度超过限制
+            return this.gameOver(Constants.GAME_OVER_TYPE.LOSE);
+        } 
+        if (this._remainBallCount <= 0) {
+            return this.gameOver(Constants.GAME_OVER_TYPE.LOSE);
         }
+        // 游戏继续
+        this.ballState = Constants.BALL_SHOOT_STATE.READY;
     }
 
     updateTargetCount(count: number) {

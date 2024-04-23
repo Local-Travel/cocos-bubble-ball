@@ -4,8 +4,8 @@ import { Utils } from '../util/Utils';
 import { Constants } from '../util/Constant';
 const { ccclass, property } = _decorator;
 
-@ccclass('Fail')
-export class Fail extends Component {
+@ccclass('EndlessFail')
+export class EndlessFail extends Component {
     @property(Node)
     prizeRoot: Node = null
 
@@ -42,16 +42,17 @@ export class Fail extends Component {
         const user = User.instance()
         const count = user.getGameProps(propsName)
         user.setGameProps(propsName, count + 1)
-        this.hideNode()
+        this.hideNode(false)
     }
 
     showNode() {
         this.node.active = true
     }
 
-    hideNode() {
-        Constants.gameManager.init()
+    hideNode(isResetScore: boolean = true) {
+        Constants.endlessGameManager.init(isResetScore)
         this.node.active = false
+        Constants.dialogManager.showOtherMode()
     }
 }
 

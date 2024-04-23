@@ -4,6 +4,10 @@ import { Chest } from './Chest';
 import { Setting } from './Setting';
 import { Success } from './Success';
 import { Fail } from './Fail';
+import { TryOtherMode } from './TryOtherMode';
+import { EndlessSuccess } from './EndlessSuccess';
+import { EndlessFail } from './EndlessFail';
+import { Utils } from '../util/Utils';
 const { ccclass, property } = _decorator;
 
 @ccclass('DialogManager')
@@ -26,6 +30,15 @@ export class DialogManager extends Component {
     @property(Fail)
     fail: Fail = null
 
+    @property(EndlessSuccess)
+    endlessSuccess: EndlessSuccess = null
+
+    @property(EndlessFail)
+    endlessFail: EndlessFail = null
+
+    @property(TryOtherMode)
+    otherMode: TryOtherMode = null
+
     __preload () {
         Constants.dialogManager = this
     }
@@ -47,11 +60,23 @@ export class DialogManager extends Component {
     }
 
     showSuccess() {
-        this.success.showNode()
+        if (Utils.getLocalStorage('scene') == 'GameManager') {
+            this.success.showNode()
+        } else {
+            this.endlessSuccess.showNode()
+        }
     }
 
     showFail() {
-        this.fail.showNode()
+        if (Utils.getLocalStorage('scene') == 'GameManager') {
+            this.fail.showNode()
+        } else {
+            this.endlessFail.showNode()
+        }
+    }
+
+    showOtherMode() {
+        this.otherMode.showNode()
     }
 
     showTipLabel(tip: string, cb: Function = () => {}) {
@@ -70,7 +95,7 @@ export class DialogManager extends Component {
     hideTipLabel(cb: Function = () => {}) {
         tween(this.MsgTip)
         .delay(1)
-        .to(0.5, { position: new Vec3(0, 30, 0), scale: new Vec3(0.1, 0.1, 0.1) }, { 
+        .to(0.5, { position: new Vec3(0, 30, 0), scale: new Vec3(0, 0, 0) }, { 
             easing: "fade",
         }) 
         .call(() => {
