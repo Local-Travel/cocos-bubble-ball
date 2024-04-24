@@ -74,7 +74,9 @@ export class GameManager extends Component {
         this._remainBallCount = data.bubbleCount;
         this._bubbleListMaxLen = data.maxLen;
         if (data.desc) {
-            Constants.dialogManager.showTipLabel(data.desc)
+            this.scheduleOnce(() => {
+                Constants.dialogManager.showTipLabel(data.desc)
+            }, 1.5)
         }
     }
 

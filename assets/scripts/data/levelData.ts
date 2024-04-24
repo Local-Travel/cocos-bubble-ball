@@ -27,7 +27,7 @@ export function getLevelData(level: number) {
     },
     {
       level: 0,
-      score: 900,
+      score: 930,
       bubbleCount: 15,
       skinCount: 4,
       targetCount: 4,
