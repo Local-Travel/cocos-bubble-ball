@@ -50,10 +50,12 @@ export class Utils {
         if (col >= Utils.getMaxCol()) {
           col -= 1
         }
+        
         if (bubbleBallList[row] 
           && bubbleBallList[row][col]
           && (!bubbleBallList[row + 1] || !bubbleBallList[row + 1][col]) 
           ) {
+            console.log('tt', bubbleBallList[row][col])
             row += 1
         }
         return { row, col };

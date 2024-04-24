@@ -159,9 +159,9 @@ export class Constants {
   static SCREEN_WIDTH = 375; // 屏幕宽度
   static SCREEN_HEIGHT = 667; // 屏幕高度
   static HEADER_HEIGHT = 50; // 头部高度
+  static TOP_LINE_HEIGHT = 15; // 顶部线的高度
   static SCREEN_TOP_X = this.SCREEN_WIDTH / 2; // 屏幕左上角X位置
-  static SCREEN_TOP_Y = this.SCREEN_HEIGHT / 2 - this.HEADER_HEIGHT; // 屏幕左上角Y位置
-  static SCREEN_BOTTOM_Y = -160; // 底部隐藏的高度
+  static SCREEN_TOP_Y = this.SCREEN_HEIGHT / 2 - this.HEADER_HEIGHT - this.TOP_LINE_HEIGHT; // 屏幕左上角Y位置
 
   // game
   static GAME_STATE = GAME_STATE; // 游戏状态

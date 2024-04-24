@@ -385,7 +385,7 @@ export class BallManager extends Component {
             const arr = this.bubbleBallList[i]
             const isEmpty = arr.every(ball => !ball)
             if (isEmpty) {
-                this.bubbleBallList.pop()
+                this.bubbleBallList.splice(i, 1)
             } else {
                 break
             }

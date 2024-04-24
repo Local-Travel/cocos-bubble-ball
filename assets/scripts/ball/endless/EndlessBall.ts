@@ -33,11 +33,11 @@ export class EndlessBall extends Component {
     }
 
     isInView() {
-        const pos = this.node.position
-        if (pos.y < Constants.SCREEN_TOP_Y && pos.y > Constants.SCREEN_BOTTOM_Y) {
-            return true
-        }
-        return false
+        // const pos = this.node.position
+        // if (pos.y < Constants.SCREEN_TOP_Y && pos.y > Constants.SCREEN_BOTTOM_Y) {
+        //     return true
+        // }
+        // return false
     }
 
     /** 球碰撞检测距离 */

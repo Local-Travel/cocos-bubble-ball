@@ -41,16 +41,18 @@ export class BallControl extends Component {
     }
 
     init(createBallCount: number, col: number, list: number[], ballSkin: string = 'Style1') {
+        this.destroyShootBall()
         this.curBall = null
         this.nextBall = null
         this.shootingBall = null
         this._ballSkin = Constants.BALL_SKIN[ballSkin] || {}
 
         this._remainCreateCount = createBallCount
-
-        this.destroyShootBall()
-        // this.initShootBall()
+        
         this.ballManager.init(col, list)
+        if (this._popPos && !this.nextBall) {
+            this.initShootBall()
+        }
     }
 
     listenJoyStickPosition(pos: Vec3) {

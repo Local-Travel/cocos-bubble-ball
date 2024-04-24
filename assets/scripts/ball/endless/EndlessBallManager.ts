@@ -286,18 +286,19 @@ export class EndlessBallManager extends Component {
             if (isEmpty) {
                 this.bubbleBallList.splice(i, 1)
             } else {
-                const ball = arr.find(b => b)
-                if (!ball.isInView()) {
-                    arr.forEach((ball, j) => {
-                        if (ball) {
-                            ball.playBallExplosion()
-                            this.bubbleBallList[i][j] = null
-                        }
-                    })
-                    this.bubbleBallList.splice(i, 1)
-                } else {
-                    break
-                }
+                break
+                // const ball = arr.find(b => b)
+                // if (!ball.isInView()) {
+                //     arr.forEach((ball, j) => {
+                //         if (ball) {
+                //             ball.playBallExplosion()
+                //             this.bubbleBallList[i][j] = null
+                //         }
+                //     })
+                //     this.bubbleBallList.splice(i, 1)
+                // } else {
+                //     break
+                // }
             }
         }
         if (this.bubbleBallList.length <= 3) {

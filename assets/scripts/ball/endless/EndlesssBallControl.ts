@@ -38,12 +38,15 @@ export class EndlesssBallControl extends Component {
     }
 
     init(ballSkin: string = 'Style2') {
+        this.destroyShootBall()
         this.curBall = null
         this.nextBall = null
         this.shootingBall = null
         this._ballSkin = Constants.BALL_SKIN[ballSkin] || {}
-        this.destroyShootBall()
         this.endlessBallManager.init(ballSkin)
+        if (this._popPos && !this.nextBall) {
+            this.initShootBall()
+        }
     }
 
     listenJoyStickPosition(pos: Vec3) {
