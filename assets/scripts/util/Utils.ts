@@ -40,7 +40,7 @@ export class Utils {
      */
     static convertToRowCol(pos: Vec2, r: number = Constants.BALL_RADIUS, bubbleBallList: any[]): { row: number, col: number } {
         const rx = Math.abs(Constants.SCREEN_TOP_Y - pos.y - r) / (r * Math.sqrt(3))
-        const row = Math.round(rx);
+        let row = Math.round(rx);
         const cy = Math.abs(pos.x + Constants.SCREEN_TOP_X - r * (row % 2 + 1)) / (r * 2)
         let col = Math.round(cy)
         console.log(rx, cy)
@@ -49,6 +49,12 @@ export class Utils {
         }
         if (col >= Utils.getMaxCol()) {
           col -= 1
+        }
+        if (bubbleBallList[row] 
+          && bubbleBallList[row][col]
+          && (!bubbleBallList[row + 1] || !bubbleBallList[row + 1][col]) 
+          ) {
+            row += 1
         }
         return { row, col };
     }
@@ -60,7 +66,6 @@ export class Utils {
       const nPos = Utils.convertToPos(row, col, r);
       const preBall = PoolManager.instance().getNode(ballPrefab, parent);
       preBall.setPosition(v3(nPos.x, nPos.y, 0));
-      console.log('pos', pos, 'nPos', nPos)
       return { preBall, nPos, row, col };
     }
 

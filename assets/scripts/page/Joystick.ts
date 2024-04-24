@@ -80,9 +80,9 @@ export class Joystick extends Component {
     this._scene = Utils.getLocalStorage('scene')
     this._preBallData = null
     const stickPos = this.node.position;
-    const stickParentPos = this.node.parent.position;
-    const pos = v2(stickPos.x + stickParentPos.x, stickPos.y + stickParentPos.y)
-    director.emit(Constants.EVENT_TYPE.STICK_REGISTER_SUCCESS, pos)
+    // const stickParentPos = this.node.parent.position;
+    // const pos = v2(stickPos.x + stickParentPos.x, stickPos.y + stickParentPos.y)
+    director.emit(Constants.EVENT_TYPE.STICK_REGISTER_SUCCESS, stickPos)
   }
 
   update(deltaTime: number) {
