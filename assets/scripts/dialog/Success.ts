@@ -58,7 +58,7 @@ export class Success extends Component {
     }
 
     hideNode() {
-        Constants.endlessGameManager.init()
+        Constants.gameManager.init()
         this.node.active = false
     }
 }
