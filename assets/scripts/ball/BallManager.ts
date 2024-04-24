@@ -108,8 +108,6 @@ export class BallManager extends Component {
             this.nextShootBall()
             return
         }
-        // const { row, col } = Utils.convertToRowCol(v2(endPos.x, endPos.y))
-        // console.log('endPos', row, col)
         let targetList = []
 
         switch(shootingBall.skillType) {
@@ -279,8 +277,6 @@ export class BallManager extends Component {
             this.nextShootBall()
             return
         }
-        // const { row, col } = Utils.convertToRowCol(v2(endPos.x, endPos.y))
-        // console.log('endPos', row, col)
         const texture = shootingBall.texture
 
         const sameBallList = this.getSameBallList(row, col, texture)

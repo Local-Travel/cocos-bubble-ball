@@ -137,15 +137,6 @@ export class EndlessBallManager extends Component {
             this.nextShootBall()
             return
         }
-        // const { row, col } = Utils.convertToRowCol(v2(endPos.x, endPos.y), Constants.BALL_ENDLESS_RADIUS)
-        // const target = this.findSameColorAndCollision(shootingBall)
-        // if (!target) {
-        //     shootingBall.playBallExplosion()
-        //     this.nextShootBall()
-        //     return
-        // }
-        // const { row, col } = target
-        // console.log('endPos', row, col)
         let targetList = []
 
         switch (shootingBall.skillType) {
