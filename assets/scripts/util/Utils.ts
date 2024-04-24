@@ -1,6 +1,7 @@
-import { Vec2, misc, log } from "cc";
+import { Vec2, misc, log, Prefab, Node, v3, UITransform, v2 } from "cc";
 import { WECHAT, BYTEDANCE, BAIDU } from "cc/env"
 import { Constants } from "./Constant";
+import { PoolManager } from "./PoolManager";
 
 export class Utils {
     /**
@@ -18,14 +19,7 @@ export class Utils {
      * @returns 
      */
     static getMaxCol(): number {
-        return Math.floor((Math.abs(Constants.SCREEN_TOP_X) * 2 - Constants.BALL_RADIUS * 2) / (Constants.BALL_RADIUS * 2));
-    }
-
-    /**
-     * 获取最大行数
-     */
-    static getMaxRow(): number {
-        return Math.floor((Math.abs(Constants.SCREEN_TOP_Y * 2) - Constants.BALL_RADIUS) / (Constants.BALL_RADIUS * Math.sqrt(3)));
+        return Math.floor(Constants.SCREEN_WIDTH / (Constants.BALL_RADIUS * 2));
     }
 
     /**
@@ -44,10 +38,35 @@ export class Utils {
      * 根据位置转换为行列
      * @param pos 
      */
-    static convertToRowCol(pos: Vec2, r: number = Constants.BALL_RADIUS): { row: number, col: number } {
-        const row = Math.round(Math.abs(Constants.SCREEN_TOP_Y - pos.y - r) / (r * Math.sqrt(3)));
-        const col = Math.round(Math.abs(pos.x + Constants.SCREEN_TOP_X - r * (row % 2 + 1)) / (r * 2));
+    static convertToRowCol(pos: Vec2, r: number = Constants.BALL_RADIUS, bubbleBallList: any[]): { row: number, col: number } {
+        const rx = Math.abs(Constants.SCREEN_TOP_Y - pos.y - r) / (r * Math.sqrt(3))
+        const row = Math.round(rx);
+        const cy = Math.abs(pos.x + Constants.SCREEN_TOP_X - r * (row % 2 + 1)) / (r * 2)
+        let col = Math.round(cy)
+        console.log(rx, cy)
+        if (bubbleBallList[row] && bubbleBallList[row][col] && col > 0) {
+          col -= 1
+        }
+        if (col >= Utils.getMaxCol()) {
+          col -= 1
+        }
         return { row, col };
+    }
+
+    /** 根据位置显示预制小球 */
+    static showPreBallByPos(pos: Vec2, r: number = Constants.BALL_RADIUS, ballPrefab: Prefab, parent: Node, bubbleBallList: any[]) {
+      const nodePos = parent.getComponent(UITransform).convertToNodeSpaceAR(v3(pos.x, pos.y, 0));
+      const { row, col } = Utils.convertToRowCol(v2(nodePos.x, nodePos.y), r, bubbleBallList);
+      const nPos = Utils.convertToPos(row, col, r);
+      const preBall = PoolManager.instance().getNode(ballPrefab, parent);
+      preBall.setPosition(v3(nPos.x, nPos.y, 0));
+      console.log('pos', pos, 'nPos', nPos)
+      return { preBall, nPos, row, col };
+    }
+
+    /** 隐藏预制小球 */
+    static hidePreBall(preBall: Node) {
+      PoolManager.instance().putNode(preBall);
     }
   
   /**

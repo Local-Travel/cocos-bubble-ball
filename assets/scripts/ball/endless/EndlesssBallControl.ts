@@ -18,10 +18,10 @@ export class EndlesssBallControl extends Component {
     shootingBall: EndlessBall = null
 
     private _ballSkin = null
-    private _joyStickPos = null
+    private _popPos = null
 
     onLoad() {
-        // director.on(Constants.EVENT_TYPE.STICK_REGISTER_SUCCESS, this.listenJoyStickPosition, this)
+        director.on(Constants.EVENT_TYPE.STICK_REGISTER_SUCCESS, this.listenJoyStickPosition, this)
     }
     
     start() {
@@ -34,7 +34,7 @@ export class EndlesssBallControl extends Component {
 
     protected onDestroy(): void {
         this.destroyShootBall()
-        // director.off(Constants.EVENT_TYPE.STICK_REGISTER_SUCCESS, this.listenJoyStickPosition, this)
+        director.off(Constants.EVENT_TYPE.STICK_REGISTER_SUCCESS, this.listenJoyStickPosition, this)
     }
 
     init(ballSkin: string = 'Style2') {
@@ -43,14 +43,14 @@ export class EndlesssBallControl extends Component {
         this.shootingBall = null
         this._ballSkin = Constants.BALL_SKIN[ballSkin] || {}
         this.destroyShootBall()
-        this.initShootBall()
         this.endlessBallManager.init(ballSkin)
     }
 
-    // listenJoyStickPosition(pos: Vec3) {
-    //     console.log('listenJoyStickPosition', pos)
-    //     this._joyStickPos = pos
-    // }
+    listenJoyStickPosition(pos: Vec3) {
+        console.log('listenJoyStickPosition', pos)
+        this._popPos = pos
+        this.initShootBall()
+    }
 
     initShootBall() {
         this.nextBall = this.createShootBallOne()
@@ -103,7 +103,7 @@ export class EndlesssBallControl extends Component {
         const score = Constants.endlessGameManager.curScore
         let skinCount = this.endlessBallManager.getSkinCountByScore(score)
         skinCount = skinCount < 2 ? 2 : skinCount
-        const pos = v3(0, -263, 0)
+        const pos = this._popPos
         const code = math.randomRangeInt(1, skinCount + 1)
         const ball = this.createBall(this.shootBallPrefab, v3(pos.x, pos.y - Constants.STICK_RADIUS2, 0), code.toString(), true)
         return ball
@@ -121,21 +121,17 @@ export class EndlesssBallControl extends Component {
         }
     }
 
-    shootBallAction(posList: Vec2[], callback: Function) {
+    shootBallAction(posList: Vec2[], endPos: Vec2, row: number, col: number, callback: Function) {
         if (posList.length === 0 || !this.curBall) return
         this.curBall.playShootAction(posList, () => {
             this.shootingBall = this.curBall
             this.createShootBallNext()
             callback()
         }, () => {
-            // 将世界坐标转换为节点坐标
-            const wPos = posList[posList.length - 1]
-            const uiTransform = this.node.getComponent(UITransform);
-            const nPos = uiTransform.convertToNodeSpaceAR(v3(wPos.x, wPos.y, 0));
             if (this.shootingBall.skillType) {
-                this.endlessBallManager.eliminateBallBySkill(this.shootingBall, nPos) 
+                this.endlessBallManager.eliminateBallBySkill(this.shootingBall, endPos, row, col) 
             } else {
-                this.endlessBallManager.eliminateSameBallNormal(this.shootingBall, nPos) 
+                this.endlessBallManager.eliminateSameBallNormal(this.shootingBall, endPos, row, col) 
             }
         })
     }

@@ -17,7 +17,13 @@
       "config_id": "dd508a",
       "config_name": "Default",
       "config_remarks": "",
-      "services": []
+      "services": [
+        {
+          "service_id": "312",
+          "enable": false,
+          "param": {}
+        }
+      ]
     }
   ]
 }

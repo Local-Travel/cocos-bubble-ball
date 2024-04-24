@@ -17,7 +17,7 @@ export class BallControl extends Component {
     shootingBall: Ball = null
 
     private _ballSkin = null
-    private _joyStickPos = null
+    private _popPos = null
 
     // 当前可创建球的数量
     private _remainCreateCount: number = 0
@@ -49,13 +49,14 @@ export class BallControl extends Component {
         this._remainCreateCount = createBallCount
 
         this.destroyShootBall()
-        this.initShootBall()
+        // this.initShootBall()
         this.ballManager.init(col, list)
     }
 
     listenJoyStickPosition(pos: Vec3) {
         console.log('listenJoyStickPosition', pos)
-        this._joyStickPos = pos
+        this._popPos = pos
+        this.initShootBall()
     }
 
     initShootBall() {
@@ -122,8 +123,7 @@ export class BallControl extends Component {
     createShootBallOne() {
         this._remainCreateCount--
         if (this._remainCreateCount < 0) return null
-        const pos = this._joyStickPos || v3(0, -156, 0)
-        // const code = math.randomRangeInt(1, 3)
+        const pos = this._popPos
         let skinCount = Constants.gameManager.levelData.skinCount
         skinCount = skinCount < 2 ? 2 : skinCount
         const code = math.randomRangeInt(1, skinCount + 1)
@@ -143,22 +143,17 @@ export class BallControl extends Component {
         }
     }
 
-    shootBallAction(posList: Vec2[], callback: Function) {
+    shootBallAction(posList: Vec2[], endPos: Vec2, row: number, col: number, callback: Function) {
         if (posList.length === 0 || !this.curBall) return
         this.curBall.playShootAction(posList, () => {
             this.shootingBall = this.curBall
             this.createShootBallNext()
             callback()
         }, () => {
-            // 将世界坐标转换为节点坐标
-            const wPos = posList[posList.length - 1]
-            const uiTransform = this.node.getComponent(UITransform);
-            const nPos = uiTransform.convertToNodeSpaceAR(v3(wPos.x, wPos.y, 0));
-            console.log('shootingBallEnd pos', wPos, nPos)
             if (this.shootingBall.skillType) {
-                this.ballManager.eliminateBallBySkill(this.shootingBall, nPos) 
+                this.ballManager.eliminateBallBySkill(this.shootingBall, endPos, row, col) 
             } else {
-                this.ballManager.eliminateSameBallNormal(this.shootingBall, nPos) 
+                this.ballManager.eliminateSameBallNormal(this.shootingBall, endPos, row, col) 
             }
         })
     }

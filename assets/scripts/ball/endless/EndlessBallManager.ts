@@ -1,6 +1,5 @@
-import { _decorator, Component, Contact2DType, math, Node, Prefab, v2, v3, Vec3 } from 'cc';
+import { _decorator, Component, Contact2DType, math, Node, Prefab, v2, v3, Vec2, Vec3 } from 'cc';
 import { PageEndlessGame } from '../../page/PageEndlessGame';
-import { EndlesssBallControl } from './EndlesssBallControl';
 import { Constants } from '../../util/Constant';
 import { EndlessBall } from './EndlessBall';
 import { Utils } from '../../util/Utils';
@@ -133,19 +132,19 @@ export class EndlessBallManager extends Component {
     }
 
     /** 消除泡泡球-携带技能 */
-    eliminateBallBySkill(shootingBall: EndlessBall, endPos: Vec3) {
+    eliminateBallBySkill(shootingBall: EndlessBall, endPos: Vec2, row: number, col: number) {
         if (!shootingBall || !endPos) {
             this.nextShootBall()
             return
         }
         // const { row, col } = Utils.convertToRowCol(v2(endPos.x, endPos.y), Constants.BALL_ENDLESS_RADIUS)
-        const target = this.findSameColorAndCollision(shootingBall)
-        if (!target) {
-            shootingBall.playBallExplosion()
-            this.nextShootBall()
-            return
-        }
-        const { row, col } = target
+        // const target = this.findSameColorAndCollision(shootingBall)
+        // if (!target) {
+        //     shootingBall.playBallExplosion()
+        //     this.nextShootBall()
+        //     return
+        // }
+        // const { row, col } = target
         // console.log('endPos', row, col)
         let targetList = []
 
@@ -221,7 +220,7 @@ export class EndlessBallManager extends Component {
     }
 
     /** 消除泡泡球-普通消除 */
-    eliminateSameBallNormal(shootingBall: EndlessBall, endPos: Vec3) {
+    eliminateSameBallNormal(shootingBall: EndlessBall, endPos: Vec2, row: number, col: number) {
         console.log('eliminateSameBallNormal')
         if (!shootingBall || !endPos) {
             this.nextShootBall()
@@ -252,9 +251,9 @@ export class EndlessBallManager extends Component {
         //     this.nextShootBall()
         //     return
         // }
-        const { row, col } = Utils.convertToRowCol(v2(endPos.x, endPos.y), Constants.BALL_ENDLESS_RADIUS)
+        // const { row, col } = Utils.convertToRowCol(v2(endPos.x, endPos.y), Constants.BALL_ENDLESS_RADIUS)
         // const { row, col, ball: targetBall } = target
-        console.log('endPos', row, col)
+        // console.log('endPos', row, col)
         const texture = shootingBall.texture
 
         const sameBallList = this.getSameBallList(row, col, texture)
@@ -275,62 +274,16 @@ export class EndlessBallManager extends Component {
 
             this.nextShootBall(bombCount, hangCount)
         } else {
-            this.becomeBubbleBall(shootingBall, row, col)
-        }
-    }
+            if (!this.bubbleBallList[row]) {
+                this.bubbleBallList[row] = []
+                for(let j = 0; j < this.bubbleBallList[0].length; j++) {
+                    this.bubbleBallList[row][j] = null
+                }
+            }
+            this.bubbleBallList[row][col] = shootingBall
 
-    /** 射击球成为气泡球 */
-    becomeBubbleBall(ball: EndlessBall, row: number, col: number) {
-        const newPos = Utils.convertToPos(row, col, Constants.BALL_ENDLESS_RADIUS)
-        ball.setBallPosition(newPos)
-        let isBubble = false
-        const len = this.bubbleBallList.length
-        if (!this.bubbleBallList[row] && row <= len) {
-            this.bubbleBallList[row] = []
-            for(let j = 0; j < this.bubbleBallList[0].length; j++) {
-                this.bubbleBallList[row][j] = null
-            }
+            this.nextShootBall()
         }
-        if (this.bubbleBallList[row] && !this.bubbleBallList[row][col]) {
-            let isLinked = false
-            if (row !== 0) {
-                // 处理悬空的球
-                const leftTop = row % 2 === 1 ? col : col - 1
-                // 左上
-                if (this.checkBallNotNull(row - 1, leftTop)) {
-                    isLinked = true
-                }            
-                // 右上
-                if (this.checkBallNotNull(row - 1, leftTop + 1)) {
-                    isLinked = true
-                }
-                // 左
-                if (this.checkBallNotNull(row, col - 1)) {
-                    isLinked = true
-                }
-                // 右
-                if (this.checkBallNotNull(row, col + 1)) {
-                    isLinked = true
-                }
-                // 左下
-                if (this.checkBallNotNull(row + 1, leftTop)) {
-                    isLinked = true
-                }
-                // 右下
-                if (this.checkBallNotNull(row + 1, leftTop + 1)) {
-                    isLinked = true
-                }
-            }
-            if (isLinked || row === 0) {
-                this.bubbleBallList[row][col] = ball
-                isBubble = true
-            }
-        }
-        if (!isBubble) {
-            ball.playBallExplosion()
-        }
-        
-        this.nextShootBall()
     }
 
     nextShootBall(bombCount: number = 0, dropCount: number = 0) {

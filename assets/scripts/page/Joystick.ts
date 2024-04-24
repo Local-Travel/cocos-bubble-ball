@@ -10,6 +10,7 @@ import {
   Material,
   Node,
   PhysicsSystem2D,
+  Prefab,
   resources,
   UITransform,
   v2,
@@ -20,6 +21,7 @@ import {
 import { BallManager } from "../ball/BallManager";
 import { Constants } from "../util/Constant";
 import { Utils } from "../util/Utils";
+import { EndlessBallManager } from "../ball/endless/EndlessBallManager";
 const { ccclass, property } = _decorator;
 
 @ccclass("Joystick")
@@ -33,6 +35,16 @@ export class Joystick extends Component {
   @property
   maxR: number = 0;
 
+  @property(Prefab)
+  preBallPrefab: Prefab = null;
+  @property(Node)
+  preBallParent: Node = null;
+
+  @property(BallManager)
+  ballManager: BallManager = null;
+  @property(EndlessBallManager)
+  endlessBallManager: EndlessBallManager = null;
+
   public direction: Vec2 = new Vec2(0, 0);
   public ballPosList: Vec2[] = [];
 
@@ -42,6 +54,7 @@ export class Joystick extends Component {
   // 2dRay
   private _cur_len: number = 0;
   private _scene: string = 'GameManager';
+  private _preBallData: any = null;
 
   onLoad() {
     PhysicsSystem2D.instance.enable = true;
@@ -65,8 +78,11 @@ export class Joystick extends Component {
 
   start() {
     this._scene = Utils.getLocalStorage('scene')
-    // director.on(Constants.EVENT_TYPE.NEXT_SHOOT_BALL, this.listenCreateShootBall, this)
-    director.emit(Constants.EVENT_TYPE.STICK_REGISTER_SUCCESS, this.node.position)
+    this._preBallData = null
+    const stickPos = this.node.position;
+    const stickParentPos = this.node.parent.position;
+    const pos = v2(stickPos.x + stickParentPos.x, stickPos.y + stickParentPos.y)
+    director.emit(Constants.EVENT_TYPE.STICK_REGISTER_SUCCESS, pos)
   }
 
   update(deltaTime: number) {
@@ -87,6 +103,8 @@ export class Joystick extends Component {
 
   onTouchMove(event: EventTouch) {
     this.clearLine();
+    this.hidePreBall();
+    this._preBallData = null;
     this._cur_len = 0;
     this.ballPosList = [];
     // 处理触摸移动事件
@@ -115,22 +133,44 @@ export class Joystick extends Component {
     const startPos = v2(pos.x, pos.y + Constants.STICK_RADIUS)
     const vec = this.direction.clone();
     
-    if (angle < 0 || angle > 180) return
+    if (angle < 15 || angle > 165) return
 
     this.drawRayCast2D(startPos, vec)
   }
 
   onTouchEnd(event: EventTouch) {
     // 处理触摸结束事件
-    if (this._scene === 'GameManager') {
-      Constants.gameManager.shootBallAction(this.ballPosList);
-    } else {
-      Constants.endlessGameManager.shootBallAction(this.ballPosList);
-    }
     this.direction.x = this.direction.y = 0;
     this.stick.setPosition(0, 0);
     this.clearLine();
+    this.hidePreBall();
     this._cur_len = 0;
+    
+    if (!this._preBallData) return;
+    const { preBall, nPos, row, col } = this._preBallData;
+    // const wPos = this.camera.screenToWorld(v3(nPos.x, nPos.y, 0));
+    // const wPos = v2(preBall.worldPosition.x, preBall.worldPosition.y);
+    // 最后一个节点替换成世界坐标
+    // this.ballPosList[this.ballPosList.length - 1] = nPos;
+    const ballTracePosList = this.getNodePosList();
+    ballTracePosList[ballTracePosList.length - 1] = nPos;
+    if (this._scene === 'GameManager') {
+      Constants.gameManager.shootBallAction(ballTracePosList, nPos, row, col);
+    } else {
+      Constants.endlessGameManager.shootBallAction(ballTracePosList, nPos, row, col);
+    }
+    console.log('this.ballPosList', this.ballPosList, ballTracePosList)
+  }
+
+  getNodePosList() {
+    let list = []
+    for(let i = 0; i < this.ballPosList.length; i++) {
+      const pos = this.ballPosList[i];
+      const nodePos = this.preBallParent.getComponent(UITransform).convertToNodeSpaceAR(v3(pos.x, pos.y, 0))
+      const nPos = v2(nodePos.x, nodePos.y)
+      list.push(nPos)
+    }
+    return list
   }
 
   listenCreateShootBall(data: any) {
@@ -140,6 +180,12 @@ export class Joystick extends Component {
 
   clearLine() {
     this._g.clear();
+  }
+
+  hidePreBall() {
+    if (this._preBallData && this._preBallData.preBall) {
+      Utils.hidePreBall(this._preBallData.preBall)
+    }
   }
 
   drawRayCast2D(initPos: Vec2, vec: Vec2) {
@@ -176,6 +222,16 @@ export class Joystick extends Component {
       // 画射线
       this.drawTraceByRayCast2D(startPos, point);
       if (name === 'ball' || name === 'shootBall' || name === 'endlessBall' || name === 'wall-top') {
+        let list = []
+        if (this._scene === 'GameManager') {
+          list = this.ballManager.bubbleBallList
+        } else {
+          list = this.endlessBallManager.bubbleBallList
+        }
+        const data = Utils.showPreBallByPos(point, Constants.BALL_RADIUS, this.preBallPrefab, this.preBallParent, list)
+        console.log('name', name)
+        console.log('data', data)
+        this._preBallData = data
         return;
       }
       // 当前长度

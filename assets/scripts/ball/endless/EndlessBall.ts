@@ -98,7 +98,7 @@ export class EndlessBall extends Component {
         if (posList.length === 0) return
         const taskList = []
         for(let i = 0; i < posList.length; i++) {
-            const t = tween(this.node).to(0.3, {worldPosition: v3(posList[i].x, posList[i].y, 0)});
+            const t = tween(this.node).to(0.2, {position: v3(posList[i].x, posList[i].y, 0)});
             if (i === 0) {
                 t.call(() => {
                     cb()

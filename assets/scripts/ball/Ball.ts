@@ -113,10 +113,11 @@ export class Ball extends Component {
 
     /** 发射球移动轨迹 */
     playShootAction(posList: Vec2[], cb: Function, callback: Function) {
-        if (posList.length === 0) return
+        const len = posList.length
+        if (len === 0) return
         const taskList = []
-        for(let i = 0; i < posList.length; i++) {
-            const t = tween(this.node).to(0.3, {worldPosition: v3(posList[i].x, posList[i].y, 0)});
+        for(let i = 0; i < len; i++) {
+            const t = tween(this.node).to(0.2, {position: v3(posList[i].x, posList[i].y, 0)});
             if (i === 0) {
                 t.call(() => {
                     cb()

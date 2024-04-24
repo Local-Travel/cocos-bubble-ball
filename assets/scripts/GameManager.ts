@@ -78,13 +78,13 @@ export class GameManager extends Component {
         }
     }
 
-    shootBallAction(posList: Vec2[]) {
+    shootBallAction(posList: Vec2[], endPos: Vec2, row: number, col: number) {
         if (this.gameStatus !== Constants.GAME_STATE.READY) return
         if (this.ballState === Constants.BALL_SHOOT_STATE.READY 
             && posList.length
             && this._remainBallCount > 0) {
             this.ballState = Constants.BALL_SHOOT_STATE.SHOOTING;
-            this.ballControl.shootBallAction(posList, () => {
+            this.ballControl.shootBallAction(posList, endPos, row, col, () => {
                 // 成功发射球
                 this._remainBallCount--
                 this.pageGame.updateShootBallCount(this._remainBallCount)

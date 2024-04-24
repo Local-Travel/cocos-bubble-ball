@@ -1850,8 +1850,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 40.03566331129807,
-      "height": 25.2
+      "width": 40.03414194051501,
+      "height": 25.200000000000003
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1883,7 +1883,7 @@
     "_string": "2000",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 32.275862068965516,
+    "_actualFontSize": 27.796101949025488,
     "_fontSize": 18,
     "_fontFamily": "Arial",
     "_lineHeight": 20,
@@ -2887,6 +2887,17 @@
       "__id__": 9
     },
     "maxR": 1,
+    "preBallPrefab": {
+      "__uuid__": "dd8d6517-25df-4652-88f0-423b3924d847",
+      "__expectedType__": "cc.Prefab"
+    },
+    "preBallParent": {
+      "__id__": 16
+    },
+    "ballManager": null,
+    "endlessBallManager": {
+      "__id__": 19
+    },
     "_id": "bahMN70tFOib+CP1r45YKt"
   },
   {
