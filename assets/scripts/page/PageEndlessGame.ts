@@ -115,6 +115,7 @@ export class PageEndlessGame extends Component {
 
     // 更新分数
     updateScore(score: number) {
+        User.instance().setHistScore(score)
         this.scoreRoot.getComponent(Label).string = `${score}`
     }
 

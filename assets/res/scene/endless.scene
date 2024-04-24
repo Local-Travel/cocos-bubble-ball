@@ -864,7 +864,7 @@
     "_lscale": {
       "__type__": "cc.Vec3",
       "x": 13,
-      "y": 8,
+      "y": 15,
       "z": 1
     },
     "_mobility": 0,
@@ -14103,7 +14103,7 @@
         "__id__": 384
       }
     ],
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 386

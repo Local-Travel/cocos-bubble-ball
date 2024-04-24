@@ -9,11 +9,12 @@ export class User {
     private level: number = 0
     /** 金币 */
     private gold: number = 0
+    /** 历史最高分 */
+    private histScore: number = 0
     /** 游戏道具 */
     private gameProps: any = {}
     /** 游戏道具名称 */
     private ballSkin: string = ''
-
 
     /** 每个道具初始数量 */
     private propsNum: number = 2
@@ -24,7 +25,7 @@ export class User {
         if (!this._instance) {
             const user = Utils.getLocalStorage('bubbleUser')
             if (user) {
-                this._instance = new User(user.level, user.gold, user.gameProps, user.ballSkin)
+                this._instance = new User(user.level, user.gold, user.gameProps, user.ballSkin, user.histScore)
             } else {
                 this._instance = new User()
             }
@@ -32,9 +33,10 @@ export class User {
         return this._instance
     }
 
-    constructor(level: number = 1, gold: number = 100, gameProps: any = null, ballSkin: string = '') {
+    constructor(level: number = 1, gold: number = 100, gameProps: any = null, ballSkin: string = '', histScore: number = 0) {
         this.level = level
         this.gold = gold
+        this.histScore = histScore
         this.ballSkin = ballSkin || 'Style1'
         /** 游戏道具使用对象存储 */
         if (!gameProps) {
@@ -64,6 +66,15 @@ export class User {
 
     public setGold(gold: number) {
         this.gold = gold >= 0 ? gold : 0
+        Utils.setLocalStorage('bubbleUser', this)
+    }
+
+    public getHistScore() {
+        return this.histScore
+    }
+
+    public setHistScore(histScore: number) {
+        this.histScore = histScore >= this.histScore ? histScore : this.histScore
         Utils.setLocalStorage('bubbleUser', this)
     }
 
