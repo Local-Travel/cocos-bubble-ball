@@ -40,7 +40,7 @@ export class GameManager extends Component {
         Utils.setLocalStorage('scene', 'GameManager')
         // 注册全局碰撞回调函数
         if (PhysicsSystem2D.instance) {
-            PhysicsSystem2D.instance.on(Contact2DType.BEGIN_CONTACT, this.onEndContact, this);
+            // PhysicsSystem2D.instance.on(Contact2DType.BEGIN_CONTACT, this.onEndContact, this);
         }
         this.init();
     }
@@ -52,7 +52,7 @@ export class GameManager extends Component {
     protected onDestroy(): void {
         // 取消注册全局碰撞回调函数 
         if (PhysicsSystem2D.instance) {
-            PhysicsSystem2D.instance.off(Contact2DType.BEGIN_CONTACT, this.onEndContact, this);
+            // PhysicsSystem2D.instance.off(Contact2DType.BEGIN_CONTACT, this.onEndContact, this);
         }
     }
 

@@ -6,7 +6,7 @@ const { ccclass, property } = _decorator;
 @ccclass('User')
 export class User {
     /** 等级 */
-    private level: number = 0
+    private level: number = 1
     /** 金币 */
     private gold: number = 0
     /** 历史最高分 */

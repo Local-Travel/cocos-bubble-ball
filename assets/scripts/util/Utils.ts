@@ -1,4 +1,4 @@
-import { Vec2, misc, log, Prefab, Node, v3, UITransform, v2 } from "cc";
+import { Vec2, misc, log, Prefab, Node, v3, UITransform, v2, sys } from "cc";
 import { WECHAT, BYTEDANCE, BAIDU } from "cc/env"
 import { Constants } from "./Constant";
 import { PoolManager } from "./PoolManager";
@@ -83,7 +83,7 @@ export class Utils {
    */
   static setLocalStorage(key: string, data: any) {
     try {
-        localStorage.setItem(key, JSON.stringify(data))
+      sys.localStorage.setItem(key, JSON.stringify(data))
     } catch (e) {
         console.error(e)
     }
@@ -95,7 +95,7 @@ export class Utils {
    */
   static getLocalStorage(key: string) {
     try {
-      const dataStr = localStorage.getItem(key)
+      const dataStr = sys.localStorage.getItem(key)
       if (dataStr) {
           const data = JSON.parse(dataStr)
           return data
