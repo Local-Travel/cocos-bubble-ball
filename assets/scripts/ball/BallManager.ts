@@ -32,18 +32,19 @@ export class BallManager extends Component {
      * @param col 生成列数量
      * @param list 生成泡泡的参考列表
      */
-    init(col: number, list: number[]) {
+    init(list: number[][]) {
         this.clearBubbleBallList()
-        this.createBubbleBallList(col, list)
+        this.createBubbleBallList(list)
     }
 
-    createBubbleBallList(col: number, list: number[]) {
+    createBubbleBallList(list: number[][]) {
         const ballList = []
-        const row = Math.round(list.length / col)
+        const row = list.length
+        const col = row ? list[0].length : 0
         for(let i = 0; i < row; i++) {
             ballList[i] = []
             for(let j = 0; j < col; j++) {
-                const code = list[i * col + j]
+                const code = list[i][j]
                 let skinCode = 1
                 if (code === 0) {
                     ballList[i][j] = null

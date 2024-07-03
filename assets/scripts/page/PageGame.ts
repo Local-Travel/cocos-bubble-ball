@@ -1,6 +1,5 @@
 import { _decorator, Component, Label, Node, ProgressBar, resources, Sprite, SpriteFrame } from 'cc';
 import { Constants } from '../util/Constant';
-import { getLevelData } from '../data/LevelData';
 import { User } from '../data/User';
 const { ccclass, property } = _decorator;
 

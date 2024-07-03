@@ -5,7 +5,7 @@ import { Ball } from './ball/Ball';
 import { PageGame } from './page/PageGame';
 import { Utils } from './util/Utils';
 import { User } from './data/User';
-import { getLevelData } from './data/LevelData';
+import LevelData from './data/LevelData';
 import { BallControl } from './ball/BallControl';
 const { ccclass, property } = _decorator;
 
@@ -57,10 +57,11 @@ export class GameManager extends Component {
     }
 
     init() {
+        const levelStr = Utils.getLocalStorage('level');
         const user = User.instance();
-        const userLevel = this.userLevelTest || user.getLevel();
+        const userLevel = Number(levelStr) || this.userLevelTest || user.getLevel();
         const ballSkin = user.getBallSkin();
-        const { col, list, data } = getLevelData(userLevel);
+        const { list, data } = LevelData.getData(userLevel);
         this.levelData = data;
         console.log('userLevel', userLevel)
         this._userLevel = userLevel;
@@ -68,7 +69,7 @@ export class GameManager extends Component {
         Constants.dialogManager.showLevelTip(userLevel)
 
         this.pageGame.init(data.name, data.bubbleCount, data.score, data.targetCount, data.targetIcon.toString());
-        this.ballControl.init(data.bubbleCount, col, list, ballSkin);
+        this.ballControl.init(data.bubbleCount, list, ballSkin);
         this.gameStatus = Constants.GAME_STATE.READY;
         this.ballState = Constants.BALL_SHOOT_STATE.READY;
         this._remainBallCount = data.bubbleCount;

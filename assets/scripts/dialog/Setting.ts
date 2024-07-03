@@ -13,7 +13,7 @@ export class Setting extends Component {
     @property(Node)
     maskRoot: Node = null
 
-    private _isMusicPlay: boolean = true
+    private _isMusicPlay: boolean = false
     private _isSoundPlay: boolean = true
 
     start() {
@@ -70,6 +70,11 @@ export class Setting extends Component {
             this._isSoundPlay = true
             // 打开声音
             Constants.audioManager.onSound()
+
+            // 已经打开的背景音乐要播放
+            if (this._isMusicPlay) {
+                Constants.audioManager.playBgm()
+            }
         }
 
         resources.load(url, SpriteFrame, (err: any, spriteFrame: SpriteFrame) => {
