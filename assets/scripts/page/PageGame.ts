@@ -44,6 +44,8 @@ export class PageGame extends Component {
     btnRainbowRoot: Node = null
     @property(Node)
     btnLightningRoot: Node = null
+    @property(Node)
+    btnRetryRoot: Node = null
 
     // 当前分数
     private _curScore: number = 0
@@ -57,6 +59,7 @@ export class PageGame extends Component {
         this.btnBombRoot.on(Node.EventType.TOUCH_END, this.onClickBomb, this)
         this.btnRainbowRoot.on(Node.EventType.TOUCH_END, this.onClickHammer, this)
         this.btnLightningRoot.on(Node.EventType.TOUCH_END, this.onClickLightning, this)
+        this.btnRetryRoot.on(Node.EventType.TOUCH_END, this.onRetry, this)
     }
 
     protected onDisable(): void {
@@ -64,6 +67,7 @@ export class PageGame extends Component {
         this.btnBombRoot.off(Node.EventType.TOUCH_END, this.onClickBomb, this)
         this.btnRainbowRoot.off(Node.EventType.TOUCH_END, this.onClickHammer, this)
         this.btnLightningRoot.off(Node.EventType.TOUCH_END, this.onClickLightning, this)
+        this.btnRetryRoot.off(Node.EventType.TOUCH_END, this.onRetry, this)
     }
 
     start() {
@@ -118,6 +122,11 @@ export class PageGame extends Component {
     /** 点击闪电技能 */
     onClickLightning() {
         this.grantSkill(Constants.PROPS_NAME.LIGHTNING)
+    }
+
+    /** 重试 */
+    onRetry() {
+        Constants.gameManager.init()
     }
 
     grantSkill(skillName: string) {
