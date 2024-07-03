@@ -274,7 +274,7 @@ export class BallManager extends Component {
     /** 消除泡泡球-普通消除 */
     eliminateSameBallNormal(shootingBall: Ball, endPos: Vec2, row: number, col: number) {
         console.log('eliminateSameBallNormal')
-        if (!shootingBall || !endPos) {
+        if (!shootingBall || !endPos || !this.bubbleBallList) {
             this.nextShootBall()
             return
         }
@@ -300,7 +300,8 @@ export class BallManager extends Component {
         } else {
             if (!this.bubbleBallList[row]) {
                 this.bubbleBallList[row] = []
-                for(let j = 0; j < this.bubbleBallList[0].length; j++) {
+                let n = (this.bubbleBallList[0] && this.bubbleBallList[0].length) || 0
+                for(let j = 0; j < n; j++) {
                     this.bubbleBallList[row][j] = null
                 }
             }

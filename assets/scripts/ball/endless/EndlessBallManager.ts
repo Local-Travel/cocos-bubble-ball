@@ -267,7 +267,8 @@ export class EndlessBallManager extends Component {
         } else {
             if (!this.bubbleBallList[row]) {
                 this.bubbleBallList[row] = []
-                for(let j = 0; j < this.bubbleBallList[0].length; j++) {
+                let n = (this.bubbleBallList[0] && this.bubbleBallList[0].length) || 0
+                for(let j = 0; j < n; j++) {
                     this.bubbleBallList[row][j] = null
                 }
             }

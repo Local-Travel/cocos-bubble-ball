@@ -56,10 +56,9 @@ export class GameManager extends Component {
         }
     }
 
-    init() {
-        const levelStr = Utils.getLocalStorage('level');
+    init(level: number = 0) {
         const user = User.instance();
-        const userLevel = Number(levelStr) || this.userLevelTest || user.getLevel();
+        const userLevel = level || this.userLevelTest || user.getLevel();
         const ballSkin = user.getBallSkin();
         const { list, data } = LevelData.getData(userLevel);
         this.levelData = data;

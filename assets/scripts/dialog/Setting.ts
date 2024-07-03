@@ -1,5 +1,6 @@
-import { _decorator, Component, Node, resources, Sprite, SpriteFrame, Texture2D } from 'cc';
+import { _decorator, Component, Node, resources, Sprite, SpriteFrame, EditBox, director } from 'cc';
 import { Constants } from '../util/Constant';
+import { Utils } from '../util/Utils';
 const { ccclass, property } = _decorator;
 
 @ccclass('Setting')
@@ -13,6 +14,9 @@ export class Setting extends Component {
     @property(Node)
     maskRoot: Node = null
 
+    // @property(Node)
+    // testRoot: Node = null
+
     private _isMusicPlay: boolean = false
     private _isSoundPlay: boolean = true
 
@@ -24,6 +28,8 @@ export class Setting extends Component {
         this.musicRoot.on(Node.EventType.TOUCH_END, this.handleMusicPlay, this)
         this.soundRoot.on(Node.EventType.TOUCH_END, this.handleSoundPlay, this)
         this.maskRoot.on(Node.EventType.TOUCH_END, this.hideNode, this)
+
+        // this.testRoot.on(Node.EventType.TOUCH_END, this.testSence, this)
     }
 
     protected onDisable(): void {
@@ -33,6 +39,10 @@ export class Setting extends Component {
     }
 
     handleMusicPlay() {
+        // Constants.dialogManager.showFail()
+        // this.node.active = false
+        // return
+
         // 背景音乐播放
         let url = 'texture/icon/icon_music_on/spriteFrame';
         if (this._isMusicPlay) {
@@ -55,6 +65,10 @@ export class Setting extends Component {
     }
 
     handleSoundPlay() {
+        // Constants.dialogManager.showSuccess()
+        // this.node.active = false
+        // return
+
         // 声音关闭或打开
         let url = 'texture/icon/icon_sound_on/spriteFrame';
         if (this._isSoundPlay) {
@@ -91,6 +105,23 @@ export class Setting extends Component {
 
     hideNode() {
         this.node.active = false
+
+        // if (Utils.getLocalStorage('scene') == 'GameManager') {
+        //     let level = this.node.getChildByName('EditBox').getComponent(EditBox).string
+        //     if (level) {
+        //         Constants.gameManager.init(Number(level))
+        //     }
+        // }
+        
+    }
+
+    testSence() {
+        this.node.active = false
+        if (Utils.getLocalStorage('scene') == 'GameManager') {
+            director.loadScene("endless")
+        } else {
+            director.loadScene("main")
+        }
     }
 }
 
