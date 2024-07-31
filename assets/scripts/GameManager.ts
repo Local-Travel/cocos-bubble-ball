@@ -102,10 +102,14 @@ export class GameManager extends Component {
 
 
     gameOver(type: string) {
+        if (this.gameStatus === Constants.GAME_STATE.OVER) return;
         switch(type) {
             case Constants.GAME_OVER_TYPE.LOSE:
                 console.log('game fail')
                 Constants.dialogManager.showFail()
+
+                // effect
+                Constants.audioManager.play('Fail')
                 break;
             default:
                 console.log('game pass')
@@ -115,6 +119,9 @@ export class GameManager extends Component {
                 } else if (this._userLevel % 5 === 0) {
                     Constants.dialogManager.showOtherMode()
                 }
+
+                // effect
+                Constants.audioManager.play('Win')
                 // 游戏通关
                 break;
         }

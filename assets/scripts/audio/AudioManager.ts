@@ -5,7 +5,6 @@ const { ccclass, property } = _decorator;
 interface IAudioMap {
     [name: string]: AudioClip
  }
-
  @ccclass('AudioManager')
  export class AudioManager extends Component {
     @property(Node)

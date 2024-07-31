@@ -18,6 +18,8 @@ export class BallManager extends Component {
 
     bubbleBallList: (Ball|null)[][] = []
 
+    private _timeoutId: number = 0
+
     start() {
 
     }
@@ -115,15 +117,21 @@ export class BallManager extends Component {
             case Constants.PROPS_NAME.BOMB:
                 const bombRadius = Constants.BOMB_RADIUS
                 targetList = this.getBombBallList(row, col, bombRadius)
+
+                Constants.audioManager.play('BombExplode')
                 break;
             case Constants.PROPS_NAME.LIGHTNING:
                 targetList = this.getLightningBallList(row, col)
+
+                Constants.audioManager.play('Lightning')
                 break;
             // case Constants.PROPS_NAME.RAINBOW:
             //     targetList = this.getRainbowBallList(row, col)
             //     break;
             case Constants.PROPS_NAME.HAMMER:
                 targetList = this.getHammerBallList(row, col)
+
+                Constants.audioManager.play('BombHammer2')
                 break;
             default:
                 break;
@@ -140,6 +148,12 @@ export class BallManager extends Component {
         // 处理悬空的球
         const hangCount = this.handleHangBubbleBallList()
         const bombCount = targetList.length
+
+        // effect
+        this._timeoutId && clearTimeout(this._timeoutId)
+        this._timeoutId = setTimeout(() => {
+            Constants.audioManager.play('GoldStar')
+        }, 200)
 
         this.nextShootBall(bombCount, hangCount)
     }
@@ -296,6 +310,9 @@ export class BallManager extends Component {
             const hangCount = this.handleHangBubbleBallList()
             const bombCount = sameBallList.length
 
+            // effect
+            Constants.audioManager.play('GoldStar')
+
             this.nextShootBall(bombCount, hangCount)
         } else {
             if (!this.bubbleBallList[row]) {
@@ -306,6 +323,8 @@ export class BallManager extends Component {
                 }
             }
             this.bubbleBallList[row][col] = shootingBall
+
+            Constants.audioManager.play('ShootPop')
 
             this.nextShootBall()
         }

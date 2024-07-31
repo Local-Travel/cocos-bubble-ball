@@ -137,6 +137,10 @@ export class Ball extends Component {
             if (this.rescueSkin) {
                 Constants.gameManager.updateTargetCount(1)
             }
+
+            // effect
+            // Constants.audioManager.play('GoldStar')
+
             this.node.destroy()
         }).start();
     }

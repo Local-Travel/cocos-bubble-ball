@@ -94,9 +94,8 @@ export class User {
 
     /** 设置游戏道具 */
     public setGameProps(key: string, num: number) {
-        const name = Constants.PROPS_NAME[key]
-        if (name) {
-            this.gameProps[name] = num > 0 ? num : 0
+        if (this.gameProps.hasOwnProperty(key)) {
+            this.gameProps[key] = num > 0 ? num : 0
             Utils.setLocalStorage('bubbleUser', this)
         }
     }

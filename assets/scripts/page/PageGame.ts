@@ -1,6 +1,7 @@
-import { _decorator, Component, Label, Node, ProgressBar, resources, Sprite, SpriteFrame } from 'cc';
+import { _decorator, Component, Label, Node, ProgressBar, resources, Sprite, SpriteFrame, tween } from 'cc';
 import { Constants } from '../util/Constant';
 import { User } from '../data/User';
+import { Utils } from '../util/Utils';
 const { ccclass, property } = _decorator;
 
 @ccclass('PageGame')
@@ -46,6 +47,13 @@ export class PageGame extends Component {
     btnLightningRoot: Node = null
     @property(Node)
     btnRetryRoot: Node = null
+    // label
+    @property(Node)
+    bombCountLabel: Node = null
+    @property(Node)
+    hammerCountLabel: Node = null
+    @property(Node)
+    lightningCountLabel: Node = null
 
     // 当前分数
     private _curScore: number = 0
@@ -53,6 +61,8 @@ export class PageGame extends Component {
     private _curTargetCount: number = 0
     private _targetTotalCount: number = 0
     private _progress: number = 0
+
+    private _timeoutId: number = 0
     
     protected onEnable(): void {
         this.settingRoot.on(Node.EventType.TOUCH_END, this.onClickSetting, this)
@@ -94,6 +104,11 @@ export class PageGame extends Component {
         this.updateShootBallCount(bubbleCount)
         this.calcScore(0, 0)
 
+        // 更新技能数量
+        this.updateSkillCount(Constants.PROPS_NAME.BOMB)
+        this.updateSkillCount(Constants.PROPS_NAME.HAMMER)
+        this.updateSkillCount(Constants.PROPS_NAME.LIGHTNING)
+
         if (targetCount) {
             this.targetRoot.active = true
             this.updateTargetCount(0)
@@ -133,10 +148,38 @@ export class PageGame extends Component {
         const count = User.instance().getGameProps(skillName)
         if (count <= 0) {
             // TODO: 弹框
-            Constants.dialogManager.showTipLabel('道具不足，分享可免费获得该技能')
+            // Constants.dialogManager.showTipLabel('道具不足，分享可免费获得该技能')
+            Utils.activeShare('useSkill-' + skillName)
+
+            this._timeoutId && clearTimeout(this._timeoutId)
+            this._timeoutId = setTimeout(() => {
+                User.instance().setGameProps(skillName, count + 1)
+                this.updateSkillCount(skillName)
+            }, 1000)
             return
         }
+        User.instance().setGameProps(skillName, count - 1)
+        this.updateSkillCount(skillName)
         Constants.gameManager.grantSkillToShootBall(skillName)
+    }
+
+    // 更新技能的数量
+    updateSkillCount(skillName: string) {
+        const count = User.instance().getGameProps(skillName)
+        console.log('更新技能数量', skillName, count)
+        switch (skillName) {
+            case Constants.PROPS_NAME.BOMB:
+                this.bombCountLabel.getComponent(Label).string = `${count}`
+                break
+            case Constants.PROPS_NAME.HAMMER:
+                this.hammerCountLabel.getComponent(Label).string = `${count}`
+                break
+            case Constants.PROPS_NAME.LIGHTNING:
+                this.lightningCountLabel.getComponent(Label).string = `${count}`
+                break
+            default:
+                break
+        }
     }
 
     // 计算分数
@@ -180,7 +223,7 @@ export class PageGame extends Component {
             }
             if (r >= 1) {
                 this.activeStar(2, true)
-                if (this._targetTotalCount === this._curTargetCount) {
+                if (this._curTargetCount >= this._targetTotalCount) {
                     Constants.gameManager.gameOver(Constants.GAME_OVER_TYPE.WIN)
                 }
             }
@@ -216,7 +259,7 @@ export class PageGame extends Component {
     updateTargetCount(count: number) {
         this._curTargetCount += count
         this.targetLabel.getComponent(Label).string = `${this._curTargetCount}/${this._targetTotalCount}`
-        if (this._curTargetCount === this._targetTotalCount && this._progress >= 1) {
+        if (this._curTargetCount >= this._targetTotalCount && this._progress >= 1) {
             Constants.gameManager.gameOver(Constants.GAME_OVER_TYPE.WIN)
         }
     }
